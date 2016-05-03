@@ -11,13 +11,10 @@ public class Main {
     public static void main(String[] args) {
         Instance bot;
         if (args.length == 0) {
-            throw new IllegalArgumentException("Please enter email and password OR a token as arguments");
-        } else if (args.length == 1) {
+            throw new IllegalArgumentException("Please enter a token as an argument");
+        } else {
         	log.info("Starting bot with token");
             bot = new Instance(args[0]);
-        } else {
-        	log.info("Starting bot with username and password");
-            bot = new Instance(args[0], args[1]);
         }
         try {
             bot.login();

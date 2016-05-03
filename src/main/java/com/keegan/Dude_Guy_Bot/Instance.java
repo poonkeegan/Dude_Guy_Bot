@@ -83,7 +83,7 @@ public class Instance {
 	                _args = _content.substring(_content.indexOf(' ') + 1).split(" ");
 	            }
 				
-				if (command.equals(KEY + "wish")){
+				if (command.equals(KEY + "thing")){
 					new MessageBuilder(this.client).withChannel(channel).withContent("Your wish is my command").build();
 				}
 				
@@ -94,21 +94,6 @@ public class Instance {
         {
 			log.debug(e.getMessage());
         }
-		
-		
-		/*try {
-			//Builds (sends) and new message in the channel that the original message was sent with the content of the original message.
-			new MessageBuilder(this.client).withChannel(channel).withContent(message.getContent()).build();
-		} catch (HTTP429Exception e) { //HTTP429Exception thrown. The bot is sending messages too quickly!
-			System.err.print("Sending messages too quickly!");
-			e.printStackTrace();
-		} catch (DiscordException e) { //DiscordException thrown. Many possibilities.
-			System.err.print(e.getErrorMessage()); //Print the error message sent by Discord
-			e.printStackTrace();
-		} catch (MissingPermissionsException e) { //MissingPermissionsException thrown. The bot doesn't have permission to send the message!
-			System.err.print("Missing permissions for channel!");
-			e.printStackTrace();
-		}*/
         
     }
 
