@@ -4,7 +4,7 @@
   <groupId>com.keegan</groupId>
   <artifactId>Dude_Guy_Bot</artifactId>
   <name>Dude_Guy_Bot</name>
-  <version>0.0.1-SNAPSHOT</version>
+  <version>0.1</version>
   <url>http://maven.apache.org</url>
   <build>
     <plugins>

@@ -4,7 +4,6 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.keegan</groupId>
-	<version>0.0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>Dude_Guy_Bot</name>
@@ -77,4 +76,5 @@
 	</build>
 
 	<artifactId>Dude_Guy_Bot</artifactId>
+	<version>0.1</version>
 </project>

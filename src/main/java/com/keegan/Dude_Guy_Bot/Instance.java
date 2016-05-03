@@ -13,7 +13,6 @@ import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.HTTP429Exception;
 import sx.blah.discord.util.MessageBuilder;
-import sx.blah.discord.util.MissingPermissionsException;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,6 +26,7 @@ public class Instance {
     private String password;
     private String token;
     private final AtomicBoolean reconnect = new AtomicBoolean(true);
+    final static String KEY = "#";
 
     public Instance(String email, String password) {
         this.email = email;
@@ -69,9 +69,34 @@ public class Instance {
     public void onMessage(MessageReceivedEvent event) {
         log.debug("Got message");
         
-        IMessage message = event.getMessage(); //Gets the message from the event object NOTE: This is not the content of the message, but the object itself
-		IChannel channel = message.getChannel(); //Gets the channel in which this message was sent.
-		try {
+        try
+        {
+        IMessage _message = event.getMessage(); //Gets the message from the event object NOTE: This is not the content of the message, but the object itself
+        String _content = _message.getContent();
+		IChannel channel = _message.getChannel(); //Gets the channel in which this message was sent.
+			if (_content.startsWith(KEY)){
+				String command = _content.toLowerCase();
+				String[] _args = null;
+				if (_content.contains(" "))
+	            {
+	                command = command.split(" ")[0];
+	                _args = _content.substring(_content.indexOf(' ') + 1).split(" ");
+	            }
+				
+				if (command.equals(KEY + "wish")){
+					new MessageBuilder(this.client).withChannel(channel).withContent("Your wish is my command").build();
+				}
+				
+				
+			}
+        }
+		catch (Exception e)
+        {
+			log.debug(e.getMessage());
+        }
+		
+		
+		/*try {
 			//Builds (sends) and new message in the channel that the original message was sent with the content of the original message.
 			new MessageBuilder(this.client).withChannel(channel).withContent(message.getContent()).build();
 		} catch (HTTP429Exception e) { //HTTP429Exception thrown. The bot is sending messages too quickly!
@@ -83,7 +108,7 @@ public class Instance {
 		} catch (MissingPermissionsException e) { //MissingPermissionsException thrown. The bot doesn't have permission to send the message!
 			System.err.print("Missing permissions for channel!");
 			e.printStackTrace();
-		}
+		}*/
         
     }
 
