@@ -3,6 +3,7 @@ package com.keegan.Dude_Guy_Bot;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.NoSuchElementException;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.AudioChannel;
@@ -49,25 +50,32 @@ public class BotAudio implements Command {
 						// Queue up the url
 						if (args[1].contains("youtube.com")){
 							try {
-								url = new URL("http://www.youtubeinmp3.com/fetch/?format=JSON&video=" + args[1]);
-								BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
-								String input = null;
-								String test = "\"link\":\"";
-								do {	
-									displayMessage(message, bot, "in loop");
-									input = in.readLine();
-									displayMessage(message, bot, input);
-								}while(!(input.contains(test)));
-								String foo = input.substring(input.indexOf(test) + test.length(), input.lastIndexOf('"'));
-								url = new URL(foo);
-								displayMessage(message, bot, foo);
-								displayMessage(message, bot, "subbed in url");
-							} catch (IOException e) {
+								displayMessage(message, bot, System.getProperty("user.dir"));
+								Process py = Runtime.getRuntime().exec("python ../youtube-dl -x --audio-format mp3 " + args[1]);
+								displayMessage(message, bot, "Loading File");
+								py.waitFor();
+								displayMessage(message, bot, "Done Loading");
+								File dir = new File(System.getProperty("user.dir"));
+								File music = null;
+								for (File file : dir.listFiles()){
+									if (file.getName().endsWith(".mp3")){
+										music = file;
+									}
+								}
+								audio_chn.queueFile(music);
+								displayMessage(message, bot, music.getName());
+								try{
+									Files.delete(music.toPath());
+								}catch (IOException x){
+									displayMessage(message, bot, x.getMessage());
+								}
+							} catch (Exception e) {
 								displayMessage(message, bot, e.getMessage());
 							}
+						}else{
+							displayMessage(message, bot, url.toString());
+							audio_chn.queueUrl(url);
 						}
-						displayMessage(message, bot, url.toString());
-						audio_chn.queueUrl(url);
 						displayMessage(message, bot, args[1] + " queued.");
 					} catch (DiscordException e) {
 						displayMessage(message, bot, "Audio channel problem" + e.getMessage());
