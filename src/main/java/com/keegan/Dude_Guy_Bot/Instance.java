@@ -84,7 +84,7 @@ public class Instance {
 			if (content.startsWith(KEY)) {
 				// Remove the key from the message
 				content = content.substring(KEY.length());
-				String command = content.toLowerCase();
+				String command = getCmd(message);
 				// Check if valid command, run if so
 				if (bot_commands.containsKey(command)){
 					bot_commands.get(command).run(message, client);
@@ -119,5 +119,27 @@ public class Instance {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public static String getCmd(IMessage message){
+		/**
+		 * Returns the String command used to issue the command
+		 * to the bot
+		 */
+		String content = message.getContent();
+		// Check if parameter cutoff
+		int end_of_cmd = content.indexOf(" ");
+		// If there are no parameters, command is everything except the command
+		if (end_of_cmd == -1){
+			end_of_cmd = content.length();
+		}
+		return content.substring(content.indexOf(getKey(message)) + 1, end_of_cmd);
+	}
+	
+	public static String getKey(IMessage message){
+		/**
+		 * Returns the key that is used to issue the command
+		 */
+		return String.valueOf(message.getContent().charAt(0));
 	}
 }

@@ -54,4 +54,19 @@ public interface Command {
 		}
 	}
 	
+	default String[] getArgs(IMessage message){
+		/**
+		 * Fetch all arguments passed in the command
+		 */
+		String content = message.getContent();
+		// Initialize to no arguments passed
+		String[] args = new String[0];
+		// Check if there is any spaces => there are arguments passed
+		if (content.contains(" ")) {
+			// Store them in an array
+            args = content.substring(content.indexOf(' ') + 1).split(" ");
+        }
+		return args;
+	}
+	
 }
