@@ -50,7 +50,7 @@ public class BotAudio implements Command {
 						// Queue up the url
 						if (args[1].contains("youtube.com")){
 							try {
-								Process py = Runtime.getRuntime().exec("python ../youtube-dl -x --audio-format mp3 " + args[1]);
+								Process py = Runtime.getRuntime().exec("python youtube-dl -x --audio-format mp3 " + args[1]);
 								displayMessage(message, bot, "Loading File");String input = null;
 								BufferedReader in = new BufferedReader(new InputStreamReader(py.getInputStream()));
 								String process_in = in.readLine();
