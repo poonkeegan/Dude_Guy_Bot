@@ -38,7 +38,7 @@ public class Instance {
 		 * Adds the bot's command list into a hashmap.
 		 */
 		bot_commands = new HashMap<String, Command>();
-		bot_commands.put("play", new BotAudio());
+		bot_commands.put("audio", new BotAudio());
 	}
 
 	public void login() throws DiscordException {
