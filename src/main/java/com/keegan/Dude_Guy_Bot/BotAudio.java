@@ -54,7 +54,7 @@ public class BotAudio implements Command {
 								displayMessage(message, bot, "Loading File");String input = null;
 								BufferedReader in = new BufferedReader(new InputStreamReader(py.getInputStream()));
 								String process_in = in.readLine();
-								while (input != null){
+								while (process_in != null){
 									displayMessage(message, bot, process_in);
 									process_in = in.readLine();
 								}
