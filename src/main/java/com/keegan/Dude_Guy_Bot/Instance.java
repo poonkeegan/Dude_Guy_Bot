@@ -14,111 +14,110 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.HTTP429Exception;
 import sx.blah.discord.util.MessageBuilder;
 
+import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Instance {
 
-    private static final Logger log = LoggerFactory.getLogger(Instance.class);
+	private static final Logger log = LoggerFactory.getLogger(Instance.class);
+	private volatile IDiscordClient client;
+	private String token;
+	private final AtomicBoolean reconnect = new AtomicBoolean(true);
+	private HashMap<String, Command> bot_commands;
+	
+	final static String KEY = "#";
 
-    private volatile IDiscordClient client;
-    private String email;
-    private String password;
-    private String token;
-    private final AtomicBoolean reconnect = new AtomicBoolean(true);
-    final static String KEY = "#";
+	public Instance(String token) {
+		this.token = token;
+		initCommands();
+	}
+	
+	public void initCommands(){
+		/**
+		 * Adds the bot's command list into a hashmap.
+		 */
+		bot_commands = new HashMap<String, Command>();
+		bot_commands.put("play", new BotAudio());
+	}
 
-    public Instance(String email, String password) {
-        this.email = email;
-        this.password = password;
-    }
+	public void login() throws DiscordException {
+		client = new ClientBuilder().withToken(token).login();
+		client.getDispatcher().registerListener(this);
+	}
 
-    public Instance(String token) {
-        this.token = token;
-    }
+	@EventSubscriber
+	public void onReady(ReadyEvent event) {
+		log.info("*** Discord bot armed ***");
+	}
 
-    public void login() throws DiscordException {
-        if (token == null) {
-            client = new ClientBuilder().withLogin(email, password).login();
-        } else {
-            client = new ClientBuilder().withToken(token).login();
-        }
-        client.getDispatcher().registerListener(this);
-    }
-
-    @EventSubscriber
-    public void onReady(ReadyEvent event) {
-        log.info("*** Discord bot armed ***");
-    }
-
-    @EventSubscriber
-    public void onDisconnect(DiscordDisconnectedEvent event) {
-        CompletableFuture.runAsync(() -> {
-            if (reconnect.get()) {
-                log.info("Reconnecting bot");
-                try {
-                    login();
-                } catch (DiscordException e) {
-                    log.warn("Failed to reconnect bot", e);
-                }
-            }
-        });
-    }
-
-    @EventSubscriber
-    public void onMessage(MessageReceivedEvent event) {
-        log.debug("Got message");
-        
-        try
-        {
-        IMessage _message = event.getMessage(); //Gets the message from the event object NOTE: This is not the content of the message, but the object itself
-        String _content = _message.getContent();
-		IChannel channel = _message.getChannel(); //Gets the channel in which this message was sent.
-			if (_content.startsWith(KEY)){
-				String command = _content.toLowerCase();
-				String[] _args = null;
-				if (_content.contains(" "))
-	            {
-	                command = command.split(" ")[0];
-	                _args = _content.substring(_content.indexOf(' ') + 1).split(" ");
-	            }
-				
-				if (command.equals(KEY + "thing")){
-					new MessageBuilder(this.client).withChannel(channel).withContent("Your wish is my command").build();
+	@EventSubscriber
+	public void onDisconnect(DiscordDisconnectedEvent event) {
+		/**
+		 * Handles bot disconnection, attempts to log it back in.
+		 */
+		CompletableFuture.runAsync(() -> {
+			if (reconnect.get()) {
+				log.info("Reconnecting bot");
+				try {
+					login();
+				} catch (DiscordException e) {
+					log.warn("Failed to reconnect bot", e);
 				}
-				
-				
 			}
-        }
-		catch (Exception e)
-        {
+		});
+	}
+
+	@EventSubscriber
+	public void onMessage(MessageReceivedEvent event) {
+		/**
+		 * Handles when a message is sent through to the server.
+		 */
+		log.debug("Got message");
+		try{
+
+			// Gets the message from the event object NOTE: This is not the content of the message, but the object itself
+			IMessage message = event.getMessage(); 
+			// This is the content of the message rather then the object
+			String content = message.getContent();
+			
+			if (content.startsWith(KEY)) {
+				// Remove the key from the message
+				content = content.substring(KEY.length());
+				String command = content.toLowerCase();
+				// Check if valid command, run if so
+				if (bot_commands.containsKey(command)){
+					bot_commands.get(command).run(message, client);
+				}
+			}
+		}
+		catch (Exception e) {
 			log.debug(e.getMessage());
-        }
-        
-    }
+			broadcast(e.getMessage(), event.getMessage().getChannel());
+		}
 
-    public void terminate() {
-        reconnect.set(false);
-        try {
-            client.logout();
-        } catch (HTTP429Exception | DiscordException e) {
-            log.warn("Logout failed", e);
-        }
-    }
+	}
 
-    public String getEmail() {
-        return email;
-    }
+	public void terminate() {
+		/**
+		 * Logs the bot out and stops it.
+		 */
+		reconnect.set(false);
+		try {
+			client.logout();
+		} catch (HTTP429Exception | DiscordException e) {
+			log.warn("Logout failed", e);
+		}
+	}
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
+	public void broadcast(String message, IChannel channel){
+		/**
+		 * Have the bot display a message in the given channel
+		 */
+		try {
+			new MessageBuilder(client).withChannel(channel).withContent(message).build();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }
