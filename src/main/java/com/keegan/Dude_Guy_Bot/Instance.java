@@ -39,6 +39,8 @@ public class Instance {
 		 */
 		bot_commands = new HashMap<String, Command>();
 		bot_commands.put("audio", new BotAudio());
+		bot_commands.put("exit", new BotExit());
+		bot_commands.put("goto", new BotGoto());
 	}
 
 	public void login() throws DiscordException {
