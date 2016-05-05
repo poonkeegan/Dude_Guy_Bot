@@ -40,7 +40,11 @@ public class BotAudio extends Command {
 					// Initialize the given url
 					try {
 						// Remove extra parameters in the url
-						url = new URL(args[1].substring(0, args[1].indexOf('&')));
+						int cutoff = args[1].indexOf('&');
+						if (cutoff == -1){
+							cutoff = args[1].length();
+						}
+						url = new URL(args[1].substring(0, cutoff));
 					} catch(ArrayIndexOutOfBoundsException e){
 						displayMessage("No URL provided");
 					} catch (MalformedURLException e) {
