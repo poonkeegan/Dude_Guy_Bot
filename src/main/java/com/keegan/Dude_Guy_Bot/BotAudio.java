@@ -143,12 +143,13 @@ public class BotAudio extends Command {
 			String input;
 			String title = null;
 			boolean correct_line;
+			input = in.readLine();
 			do{
-				input = in.readLine();
 				correct_line = input.startsWith("[download] Destination: ");
 				if (correct_line){
 					title = processYoutubeTitle(input);
 				}
+				input = in.readLine();
 			}while((!(input == null) || correct_line));
 			py.waitFor();
 			displayMessage("Now Loading File");
