@@ -4,9 +4,13 @@ import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IVoiceChannel;
 
-public class BotGoto implements Command {
+public class BotGoto extends Command {
 
-	public void run(IMessage message, IDiscordClient bot) {
+	public BotGoto(IMessage m, IDiscordClient b) {
+		super(m, b);
+	}
+
+	public void run() {
 		/**
 		 * Tells the bot to move to a given Voice Channel
 		 */
@@ -14,7 +18,7 @@ public class BotGoto implements Command {
 			IVoiceChannel voice_channel = message.getAuthor().getVoiceChannel().get();
 			voice_channel.join();
 		}else{
-			displayMessage(message, bot, "You aren't in a Voice Channel.");
+			displayMessage("You aren't in a Voice Channel.");
 		}
 	}
 

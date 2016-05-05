@@ -38,9 +38,9 @@ public class Instance {
 		 * Adds the bot's command list into a hashmap.
 		 */
 		bot_commands = new HashMap<String, Command>();
-		bot_commands.put("audio", new BotAudio());
-		bot_commands.put("exit", new BotExit());
-		bot_commands.put("goto", new BotGoto());
+		bot_commands.put("audio", new BotAudio(null, null));
+		bot_commands.put("exit", new BotExit(null, null));
+		bot_commands.put("goto", new BotGoto(null, null));
 	}
 
 	public void login() throws DiscordException {
@@ -89,7 +89,9 @@ public class Instance {
 				String command = getCmd(message);
 				// Check if valid command, run if so
 				if (bot_commands.containsKey(command)){
-					bot_commands.get(command).run(message, client);
+					bot_commands.get(command).init(message, client);
+					Thread command_thread = new Thread(bot_commands.get(command));
+					command_thread.start();
 				}
 			}
 		}

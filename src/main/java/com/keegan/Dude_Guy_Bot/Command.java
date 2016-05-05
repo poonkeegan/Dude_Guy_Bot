@@ -6,10 +6,23 @@ import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.MessageBuilder;
 
-public interface Command {
-	void run(IMessage message, IDiscordClient bot);
+public abstract class Command implements Runnable{
+
+	IMessage message;
+	IDiscordClient bot;
 	
-	default boolean hasCmdPerms(IMessage message, String role_name){
+	public Command(IMessage m, IDiscordClient b){
+		init(m, b);
+	}
+	
+	public void init(IMessage m, IDiscordClient b){
+		this.message = m;
+		this.bot = b;
+	}
+
+	public abstract void run();
+	
+	public boolean hasCmdPerms(String role_name){
 		/**
 		 * Check if a message sender has a certain role on a server to be able
 		 * to use the command.
@@ -29,24 +42,24 @@ public interface Command {
 		return has_role;
 	}
 	
-	default boolean isAdmin(IMessage message){
+	public boolean isAdmin(){
 		/**
 		 * Check if a message sender has the role Admin on the server they sent it.
 		 */
-		return hasCmdPerms(message, "Admin");
+		return hasCmdPerms("Admin");
 	}
 	
-	default boolean isTester(IMessage message) {
+	public boolean isTester() {
 		/**
 		 * Check if a message sender has the role Bot tester on the server they sent it.
 		 */
-		return hasCmdPerms(message, "Bot tester");
+		return hasCmdPerms("Bot tester");
 	}
 	
-	default void displayMessage(IMessage cmd_msg, IDiscordClient bot, String message){
+	public void displayMessage(String content){
 		MessageBuilder msg = new MessageBuilder(bot);
-		msg.withChannel(cmd_msg.getChannel());
-		msg.withContent(message);
+		msg.withChannel(message.getChannel());
+		msg.withContent(content);
 		try {
 			msg.build();
 		} catch (Exception e) {
@@ -54,7 +67,7 @@ public interface Command {
 		}
 	}
 	
-	default String[] getArgs(IMessage message){
+	public String[] getArgs(){
 		/**
 		 * Fetch all arguments passed in the command
 		 */

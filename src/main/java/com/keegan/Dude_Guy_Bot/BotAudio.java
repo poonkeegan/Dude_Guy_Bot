@@ -10,169 +10,131 @@ import sx.blah.discord.handle.AudioChannel;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.DiscordException;
 
-public class BotAudio implements Command {
-
-	public BotAudio(){
-
+public class BotAudio extends Command {
+	
+	
+	public BotAudio(IMessage m, IDiscordClient b) {
+		super(m, b);
 	}
-	public void run(IMessage message, IDiscordClient bot) {
+
+	public void run() {
 		/**
 		 * Implement commands for playing audio
 		 */
 		// Check for permissions
-		if (isAdmin(message)) {
+		if (isAdmin()) {
 			// Get arguments passed
 
-			String[] args = getArgs(message);
+			String[] args = getArgs();
 			// Handle no parameters
 			if(args.length == 0){
-				displayMessage(message, bot, "No parameters passed");
+				displayMessage("No parameters passed");
 				String toDisp = "Correct usage " + Instance.getKey(message) + Instance.getCmd(message) + " \"parameters\"";
-				displayMessage(message, bot, toDisp);
-			} else if(args[0].equals("queue")){
-				URL url = null;
-				// Initialize the given url
+				displayMessage(toDisp);
+			} else {
+				// Initialize audio channel
+				AudioChannel audio_chn = null;
 				try {
-					url = new URL(args[1]);
-				} catch(ArrayIndexOutOfBoundsException e){
-					displayMessage(message, bot, "No URL provided");
-				} catch (MalformedURLException e) {
-					displayMessage(message, bot, "Invalid URL");
+					audio_chn = bot.getGuilds().get(0).getAudioChannel();
+				} catch (DiscordException e1) {
+					e1.printStackTrace();
 				}
-				if (url != null) {
+
+				if(args[0].equals("queue")){
+					URL url = null;
+					// Initialize the given url
 					try {
+						url = new URL(args[1]);
+					} catch(ArrayIndexOutOfBoundsException e){
+						displayMessage("No URL provided");
+					} catch (MalformedURLException e) {
+						displayMessage("Invalid URL");
+					}
+					if (url != null) {
 						// Connect the bot to the correct voice channel
 						if(bot.getConnectedVoiceChannels().isEmpty()){
-							joinChannel(message, bot);
+							joinChannel();
 						}
-						// Grab the audio channel of the bot to play the sound in
-						AudioChannel audio_chn = bot.getConnectedVoiceChannels().get(0).getAudioChannel();
 						// Queue up the url
 						if (args[1].contains("youtube.com")){
+							// Get the youtube audio to queue
+							File music = null;
 							try {
-								Process py = Runtime.getRuntime().exec("python youtube-dl -x --audio-format mp3 " + args[1]);
-								displayMessage(message, bot, "Loading File");String input = null;
-								BufferedReader in = new BufferedReader(new InputStreamReader(py.getInputStream()));
-								String process_in = in.readLine();
-								while (process_in != null){
-									displayMessage(message, bot, process_in);
-									process_in = in.readLine();
-								}
-								displayMessage(message, bot, "Done Loading");
-								File dir = new File(System.getProperty("user.dir"));
-								File music = null;
+								// Download youtube and convert to mp3 using youtube-dl
+								Process py = Runtime.getRuntime().exec("python ../youtube-dl -x --audio-format mp3 " + url);
+								displayMessage("Loading File");
+								py.waitFor();
+								displayMessage("Done Loading");
 								
+								// Load the mp3 file into the bot
+								File dir = new File(System.getProperty("user.dir"));
 								for (File file : dir.listFiles()){
 									if (file.getName().endsWith(".mp3")){
 										music = file;
 									}
 								}
-								audio_chn.queueFile(music);
-								displayMessage(message, bot, music.getName());
-								try{
-									Files.delete(music.toPath());
-								}catch (IOException x){
-									displayMessage(message, bot, x.getMessage());
-								}
 							} catch (Exception e) {
-								displayMessage(message, bot, e.getMessage());
+								displayMessage(e.getMessage());
+							}
+							audio_chn.queueFile(music);
+							displayMessage(music.getName());
+							// Delete the downloaded youtube file
+							try{
+								Files.delete(music.toPath());
+							}catch (IOException x){
+								displayMessage(x.getMessage());
 							}
 						}else{
-							displayMessage(message, bot, url.toString());
+							displayMessage(url.toString());
 							audio_chn.queueUrl(url);
 						}
-						displayMessage(message, bot, args[1] + " queued.");
-					} catch (DiscordException e) {
-						displayMessage(message, bot, "Audio channel problem" + e.getMessage());
+						displayMessage(args[1] + " queued.");
+
+
 					}
-					
-					
-				}
-			} // Handle pausing music
-			else if (args[0].equals("pause")){
-				// Bot must be in a channel to pause music
-				if(bot.getConnectedVoiceChannels().isEmpty()){
-					displayMessage(message, bot, "Not currently inside a voice channel.");
-				}
-				else {
-					
+				} // Handle pausing music
+				else if (args[0].equals("pause")){
 					// Bot must have something queued to play
-					try {
-						if(bot.getConnectedVoiceChannels().get(0).getAudioChannel().getQueueSize() == 0){
-							displayMessage(message, bot, "There is nothing playing");
-						}
-						else{
-							bot.getConnectedVoiceChannels().get(0).getAudioChannel().pause();
-						}
-					} catch (DiscordException e) {
-						e.printStackTrace();
+					if(audio_chn.getQueueSize() == 0){
+						displayMessage("There is nothing playing");
 					}
-				}
-			}else if (args[0].equals("play")){
-				// Bot must be in a channel to pause music
-				if(bot.getConnectedVoiceChannels().isEmpty()){
-					displayMessage(message, bot, "Not currently inside a voice channel.");
-				}
-				else {
-					
-					// Bot must have something queued to play
-					try {
-						if(bot.getConnectedVoiceChannels().get(0).getAudioChannel().getQueueSize() == 0){
-							displayMessage(message, bot, "There is nothing to play currently.");
-						}
-						else{
-							bot.getConnectedVoiceChannels().get(0).getAudioChannel().resume();
-						}
-					} catch (DiscordException e) {
-						e.printStackTrace();
+					else{
+						audio_chn.pause();
 					}
-				}
-			}else if (args[0].equals("clear")){
-				// Bot must be in a channel to pause music
-				if(bot.getConnectedVoiceChannels().isEmpty()){
-					displayMessage(message, bot, "Not currently inside a voice channel.");
-				}
-				else {
-					
-					// Bot must have something queued to play
-					try {
-						if(bot.getConnectedVoiceChannels().get(0).getAudioChannel().getQueueSize() != 0){
-							bot.getConnectedVoiceChannels().get(0).getAudioChannel().clearQueue();
-							displayMessage(message, bot, "Queue Cleared.");
-						}
-					} catch (DiscordException e) {
-						e.printStackTrace();
+				}else if (args[0].equals("play")){
+					if(audio_chn.getQueueSize() == 0){
+						displayMessage("There is nothing to play currently.");
 					}
-				}
-			}else if (args[0].equals("skip")){
-				// Bot must be in a channel to skip music
-				if(bot.getConnectedVoiceChannels().isEmpty()){
-					displayMessage(message, bot, "Not currently inside a voice channel.");
-				}
-				else {
-					
+					else{
+						audio_chn.resume();
+					}
+				}else if (args[0].equals("clear")){
+					// Bot must have something queued to clear
+					if(audio_chn.getQueueSize() != 0){
+						audio_chn.clearQueue();
+						displayMessage("Queue Cleared.");
+					}else{
+						displayMessage("Nothing to clear");
+					}
+				}else if (args[0].equals("skip")){
 					// Bot must have something queued to play
-					try {
-						if(bot.getConnectedVoiceChannels().get(0).getAudioChannel().getQueueSize() == 0){
-							displayMessage(message, bot, "There is nothing to skip currently.");
-						}
-						else{
-							bot.getConnectedVoiceChannels().get(0).getAudioChannel().skip();
-							displayMessage(message, bot, "Song Skipped.");
-						}
-					} catch (DiscordException e) {
-						e.printStackTrace();
+					if(audio_chn.getQueueSize() == 0){
+						displayMessage("There is nothing to skip currently.");
+					}
+					else{
+						audio_chn.skip();
+						displayMessage("Song Skipped.");
 					}
 				}
 			}
-			
+
 		}else{
-			displayMessage(message, bot, "No permission");
+			displayMessage("No permission");
 		}
 
 	}
 
-	public void joinChannel(IMessage message, IDiscordClient bot){
+	public void joinChannel(){
 		/**
 		 * Attempts to have the bot join the voice channel that user is in
 		 */
@@ -187,8 +149,13 @@ public class BotAudio implements Command {
 		} 
 		// Make sure that there is a channel to join to
 		catch (NoSuchElementException e){
-			displayMessage(message, bot, "You are not currently in a valid channel to perform this command");
+			displayMessage("You are not currently in a valid channel to perform this command");
 		}
 	}
-
+	
+	public File loadYoutubeMP3(String url){
+		File music = null;
+		
+		return music;
+	}
 }
