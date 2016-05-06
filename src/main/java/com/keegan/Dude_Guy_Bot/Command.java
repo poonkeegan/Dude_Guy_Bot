@@ -11,10 +11,6 @@ public abstract class Command implements Runnable{
 	IMessage message;
 	IDiscordClient bot;
 	
-	public Command(IMessage m, IDiscordClient b){
-		init(m, b);
-	}
-	
 	public void init(IMessage m, IDiscordClient b){
 		this.message = m;
 		this.bot = b;

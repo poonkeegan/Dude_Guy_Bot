@@ -5,7 +5,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.NoSuchElementException;
-import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.AudioChannel;
 import sx.blah.discord.handle.obj.*;
 import sx.blah.discord.util.DiscordException;
@@ -13,9 +12,6 @@ import sx.blah.discord.util.DiscordException;
 public class BotAudio extends Command {
 	
 	
-	public BotAudio(IMessage m, IDiscordClient b) {
-		super(m, b);
-	}
 
 	public void run() {
 		/**
@@ -24,7 +20,6 @@ public class BotAudio extends Command {
 		// Check for permissions
 		if (isAdmin()) {
 			// Get arguments passed
-
 			String[] args = getArgs();
 			// Handle no parameters
 			if(args.length == 0){
@@ -44,38 +39,18 @@ public class BotAudio extends Command {
 					URL url = null;
 					// Initialize the given url
 					try {
-						url = new URL(args[1]);
+						// Remove extra parameters in the url
+						url = new URL(args[1].substring(0, args[1].indexOf('&')));
 					} catch(ArrayIndexOutOfBoundsException e){
 						displayMessage("No URL provided");
 					} catch (MalformedURLException e) {
 						displayMessage("Invalid URL");
 					}
 					if (url != null) {
-						// Connect the bot to the correct voice channel
-						if(bot.getConnectedVoiceChannels().isEmpty()){
-							joinChannel();
-						}
 						// Queue up the url
 						if (args[1].contains("youtube.com")){
 							// Get the youtube audio to queue
-							File music = null;
-							try {
-								// Download youtube and convert to mp3 using youtube-dl
-								Process py = Runtime.getRuntime().exec("python ../youtube-dl -x --audio-format mp3 " + url);
-								displayMessage("Loading File");
-								py.waitFor();
-								displayMessage("Done Loading");
-								
-								// Load the mp3 file into the bot
-								File dir = new File(System.getProperty("user.dir"));
-								for (File file : dir.listFiles()){
-									if (file.getName().endsWith(".mp3")){
-										music = file;
-									}
-								}
-							} catch (Exception e) {
-								displayMessage(e.getMessage());
-							}
+							File music = loadYoutubeMP3(url, audio_chn);
 							audio_chn.queueFile(music);
 							displayMessage(music.getName());
 							// Delete the downloaded youtube file
@@ -89,8 +64,6 @@ public class BotAudio extends Command {
 							audio_chn.queueUrl(url);
 						}
 						displayMessage(args[1] + " queued.");
-
-
 					}
 				} // Handle pausing music
 				else if (args[0].equals("pause")){
@@ -153,9 +126,47 @@ public class BotAudio extends Command {
 		}
 	}
 	
-	public File loadYoutubeMP3(String url){
+	private File loadYoutubeMP3(URL url, AudioChannel audio_chn){
+		/**
+		 * Queues a music file from a youtube url
+		 */
 		File music = null;
-		
+		try {
+			// Download youtube and convert to mp3 using youtube-dl
+			Process py = Runtime.getRuntime().exec("python ../youtube-dl -x --audio-format mp3 " + url);
+			displayMessage("Downloading File");
+			BufferedReader in = new BufferedReader(new InputStreamReader(py.getInputStream()));
+			String input;
+			String title = null;
+			boolean correct_line;
+			do{
+				input = in.readLine();
+				correct_line = input.startsWith("[download] Destination: ");
+				title = processYoutubeTitle(input);
+			}while((!(input == null) || correct_line));
+			py.waitFor();
+			displayMessage("Now Loading File");
+			
+			// Load the mp3 file into the bot
+			File dir = new File(System.getProperty("user.dir"));
+			for (File file : dir.listFiles()){
+				if (file.getName().endsWith(".mp3")){
+					music = file;
+				}
+			}
+		} catch (Exception e) {
+			displayMessage(e.getMessage());
+		}
 		return music;
+	}
+	
+	private String processYoutubeTitle(String input){
+		/**
+		 * Strips the video title out of a download log message
+		 */
+		int startIndex = "[download] Destination: ".length();
+		int endIndex = input.lastIndexOf('.');
+		String title = input.substring(startIndex, endIndex);
+		return title;
 	}
 }
