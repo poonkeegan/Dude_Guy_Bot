@@ -26,11 +26,12 @@ public class Instance {
 	private final AtomicBoolean reconnect = new AtomicBoolean(true);
 	private HashMap<String, Command> bot_commands;
 	
-	final static String KEY = "#";
+	final String KEY;
 
-	public Instance(String token) {
+	public Instance(String token, String key) {
 		this.token = token;
 		initCommands();
+		KEY = key;
 	}
 	
 	public void initCommands(){

@@ -10,11 +10,11 @@ public class Main {
 
     public static void main(String[] args) {
         Instance bot;
-        if (args.length == 0) {
-            throw new IllegalArgumentException("Please enter a token as an argument");
+        if (args.length < 2) {
+            throw new IllegalArgumentException("Please enter a token and key as an argument");
         } else {
         	log.info("Starting bot with token");
-            bot = new Instance(args[0]);
+            bot = new Instance(args[0], args[1]);
         }
         try {
             bot.login();
