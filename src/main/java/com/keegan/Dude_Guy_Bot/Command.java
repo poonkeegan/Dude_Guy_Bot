@@ -53,6 +53,9 @@ public abstract class Command implements Runnable{
 	}
 	
 	public void displayMessage(String content){
+		/**
+		 * Displays a messasge to the same channel that the command was passed to
+		 */
 		MessageBuilder msg = new MessageBuilder(bot);
 		msg.withChannel(message.getChannel());
 		msg.withContent(content);
@@ -65,7 +68,7 @@ public abstract class Command implements Runnable{
 	
 	public String[] getArgs(){
 		/**
-		 * Fetch all arguments passed in the command
+		 * Fetch all arguments passed in the command and splits on whitespace
 		 */
 		String content = message.getContent();
 		// Initialize to no arguments passed
@@ -78,4 +81,29 @@ public abstract class Command implements Runnable{
 		return args;
 	}
 	
+	public String getArg(){
+		/**
+		 * Fetch all arguments passed in the command and returns
+		 * as a whole string
+		 */
+		String content = message.getContent();
+		// Initialize to no arguments passed
+		String arg = null;
+		// Check if there is any spaces => there are arguments passed
+		if (content.contains(" ")) {
+			// Store them in an array
+            arg = content.substring(content.indexOf(' ') + 1).trim();
+        }
+		return arg;
+	}
+	
+	public void displayError(Exception e){
+		/**
+		 * Handles printing an error to the current channel
+		 */
+		for (StackTraceElement ste : e.getStackTrace()){
+			displayMessage(ste.toString());
+		}
+		displayMessage(e.toString());
+	}
 }
