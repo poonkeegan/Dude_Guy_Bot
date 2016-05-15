@@ -14,7 +14,10 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.HTTP429Exception;
 import sx.blah.discord.util.MessageBuilder;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.HashMap;
+import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -25,7 +28,7 @@ public class Instance {
 	private String token;
 	private final AtomicBoolean reconnect = new AtomicBoolean(true);
 	private HashMap<String, Command> bot_commands;
-	
+
 	final String KEY;
 
 	public Instance(String token, String key) {
@@ -33,6 +36,8 @@ public class Instance {
 		initCommands();
 		KEY = key;
 	}
+	
+	
 	
 	public void initCommands(){
 		/**
@@ -42,6 +47,7 @@ public class Instance {
 		bot_commands.put("audio", new BotAudio());
 		bot_commands.put("exit", new BotExit());
 		bot_commands.put("goto", new BotGoto());
+		bot_commands.put("league", new BotLeague());
 	}
 
 	public void login() throws DiscordException {

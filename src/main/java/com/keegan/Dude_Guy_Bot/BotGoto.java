@@ -1,6 +1,5 @@
 package com.keegan.Dude_Guy_Bot;
 
-import java.util.Collection;
 import java.util.Iterator;
 
 import sx.blah.discord.handle.obj.IGuild;
