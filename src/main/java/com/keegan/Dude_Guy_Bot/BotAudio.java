@@ -13,7 +13,7 @@ public class BotAudio extends Command {
 
 
 
-	static final float VOL_CONST = 9f/5000;
+	static final float VOL_CONST = 2.7f/5000;
 	
 	public void run() {
 		/**
