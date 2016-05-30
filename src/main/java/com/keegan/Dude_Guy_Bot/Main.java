@@ -53,4 +53,25 @@ public class Main {
 	public static String getApiKey(String api){
 		return api_keys.get(api);
 	}
+	
+	public static String readableTime(int time){
+		/**
+		 * Returns a human readable length of time
+		 * given an input of time in seconds.
+		 * REQ: time >= 0
+		 */
+		
+		String [] time_units = {"s", "m", "h"};
+		String readable_time = "";
+		for(int i = 0; i < 3; i++){
+			int curr_time = time % 60;
+			if (curr_time > 0){
+				readable_time = curr_time + time_units[i] + readable_time;
+			}
+			time /= 60;
+		}
+		return readable_time;
+	}
+	
+	
 }
