@@ -1,16 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.keegan</groupId>
+  <groupId>com.keegan.bot</groupId>
   <artifactId>Dude_Guy_Bot</artifactId>
   <name>Dude_Guy_Bot</name>
-  <version>0.1</version>
+  <version>1.5</version>
   <url>http://maven.apache.org</url>
   <build>
     <plugins>
       <plugin>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.0.0</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>com.keegan.bot.Dude_Guy_Bot.Main</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.5.1</version>
+        <configuration>
+          <source>8</source>
+          <target>8</target>
+        </configuration>
+      </plugin>
+      <plugin>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>2.4.3</version>
+        <version>2.3</version>
         <executions>
           <execution>
             <phase>package</phase>
@@ -20,7 +39,7 @@
             <configuration>
               <transformers>
                 <transformer>
-                  <mainClass>com.keegan.Dude_Guy_Bot.Main</mainClass>
+                  <mainClass>com.keegan.bot.Dude_Guy_Bot.Main</mainClass>
                 </transformer>
               </transformers>
             </configuration>
@@ -47,12 +66,5 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
-  <properties>
-    <maven.compiler.testSource>1.8</maven.compiler.testSource>
-    <maven.compiler.testTarget>1.8</maven.compiler.testTarget>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-  </properties>
 </project>
 

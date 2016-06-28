@@ -1,26 +1,22 @@
-package com.keegan.Dude_Guy_Bot;
+package com.keegan.bot.Dude_Guy_Bot;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Scanner;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import sx.blah.discord.util.DiscordException;
 
 public class Main {
 
 	private static HashMap<String, String> api_keys;
-    private static final Logger log = LoggerFactory.getLogger(Main.class);
-
     public static void main(String[] args) {
     	api_keys = new HashMap<String, String>();
         Instance bot;
         if (args.length < 2) {
             throw new IllegalArgumentException("Please enter a token and key as an argument");
         } else {
-        	log.info("Starting bot with token");
+        	System.out.println("Starting bot with token");
             bot = new Instance(args[0], args[1]);
         }
         try {
@@ -36,7 +32,7 @@ public class Main {
     		}
             bot.login();
         } catch (DiscordException e) {
-            log.warn("Bot could not start", e);
+            System.out.println("Bot could not start" + e);
         }
     }
     

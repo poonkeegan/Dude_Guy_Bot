@@ -1,4 +1,4 @@
-package com.keegan.Dude_Guy_Bot;
+package com.keegan.bot.Dude_Guy_Bot;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -21,7 +21,6 @@ public class BotLeague extends Command{
 	static String api_key;
 	static final long NOT_FOUND = -1;
 	static HashMap<String, String> game_modes;
-	game_modes.put("CLASSIC", "Classic")
 	
 	public void init(IMessage m, IDiscordClient b){
 		super.init(m, b);

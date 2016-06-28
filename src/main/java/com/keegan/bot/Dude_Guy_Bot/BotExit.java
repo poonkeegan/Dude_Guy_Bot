@@ -1,4 +1,4 @@
-package com.keegan.Dude_Guy_Bot;
+package com.keegan.bot.Dude_Guy_Bot;
 
 
 public class BotExit extends Command {

@@ -1,7 +1,5 @@
-package com.keegan.Dude_Guy_Bot;
+package com.keegan.bot.Dude_Guy_Bot;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.EventSubscriber;
 import sx.blah.discord.api.IDiscordClient;
@@ -23,7 +21,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Instance {
 
-	private static final Logger log = LoggerFactory.getLogger(Instance.class);
 	private volatile IDiscordClient client;
 	private String token;
 	private final AtomicBoolean reconnect = new AtomicBoolean(true);
@@ -57,7 +54,7 @@ public class Instance {
 
 	@EventSubscriber
 	public void onReady(ReadyEvent event) {
-		log.info("*** Discord bot armed ***");
+		System.out.println("*** Discord bot armed ***");
 	}
 
 	@EventSubscriber
@@ -67,11 +64,11 @@ public class Instance {
 		 */
 		CompletableFuture.runAsync(() -> {
 			if (reconnect.get()) {
-				log.info("Reconnecting bot");
+				System.out.println("Reconnecting bot");
 				try {
 					login();
 				} catch (DiscordException e) {
-					log.warn("Failed to reconnect bot", e);
+					System.out.println("Failed to reconnect bot" + e);
 				}
 			}
 		});
@@ -82,7 +79,7 @@ public class Instance {
 		/**
 		 * Handles when a message is sent through to the server.
 		 */
-		log.debug("Got message");
+		System.out.println("Got message");
 		try{
 
 			// Gets the message from the event object NOTE: This is not the content of the message, but the object itself
@@ -103,7 +100,7 @@ public class Instance {
 			}
 		}
 		catch (Exception e) {
-			log.debug(e.getMessage());
+			System.out.println(e.getMessage());
 			broadcast(e.getMessage(), event.getMessage().getChannel());
 		}
 
@@ -117,7 +114,7 @@ public class Instance {
 		try {
 			client.logout();
 		} catch (HTTP429Exception | DiscordException e) {
-			log.warn("Logout failed", e);
+			System.out.println("Logout failed" + e);
 		}
 	}
 

@@ -1,4 +1,4 @@
-package com.keegan.Dude_Guy_Bot;
+package com.keegan.bot.Dude_Guy_Bot;
 
 import java.io.*;
 import java.net.MalformedURLException;
@@ -151,21 +151,16 @@ public class BotAudio extends Command {
 		File music = null;
 		try {
 			// Download youtube and convert to mp3 using youtube-dl
-			Process py = Runtime.getRuntime().exec("python ../youtube-dl -x --audio-format mp3 " + url);
-			displayMessage("Downloading File");
+			String dl_dir = "youtube-dl -o " + System.getProperty("user.dir");
+      dl_dir += "/%(title)s.%(ext)s -x --audio-format mp3 " + url;
+      Process py = Runtime.getRuntime().exec(dl_dir);
+			displayMessage(dl_dir);
+      displayMessage("Downloading File");
 			BufferedReader in = new BufferedReader(new InputStreamReader(py.getInputStream()));
 			String input;
 			String title = null;
 			boolean correct_line;
 			input = in.readLine();
-			do{
-				correct_line = input.startsWith("[download] Destination: ");
-				if (correct_line){
-					// Gets Title name, figure out what to do with this
-					title = processYoutubeTitle(input);
-				}
-				input = in.readLine();
-			}while((!(input == null) || correct_line));
 			py.waitFor();
 			displayMessage("Now Loading File");
 
