@@ -6,7 +6,7 @@ public class StringQueue {
 
   private class StringNode {
     private String value;
-    private StringNode next_node
+    private StringNode next_node;
 
     public StringNode(String v, StringNode n){
       value = v;
@@ -23,10 +23,10 @@ public class StringQueue {
     }
 
     public StringNode get_next(){
-      return next_node
+      return next_node;
     }
 
-    public void set_val(v){
+    public void set_val(String v){
       value = v;
     }
 

@@ -61,12 +61,12 @@ public class Instance {
 		// Attempt to get the audio channel of the current Discord
 		AudioChannel curr_chn = null;
 		try{
-			curr_chn = bot.getGuilds().get(0).getAudioChannel();
+			curr_chn = client.getGuilds().get(0).getAudioChannel();
 			// Set the volume to 100 percent
 			curr_chn.setVolume((float) Math.pow(10, 2.7f/25) - 1);
 
 		}catch(DiscordException e){
-			displayMessage(e.getErrorMessage());
+			System.out.println(e.getErrorMessage());
 		}
 
 	}

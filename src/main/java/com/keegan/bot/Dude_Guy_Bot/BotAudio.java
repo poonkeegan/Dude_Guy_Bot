@@ -12,7 +12,7 @@ import sx.blah.discord.util.DiscordException;
 public class BotAudio extends Command {
 
 	static final float VOL_CONST = 2.7f/2500;
-	String[][] songRepeatList = new String[5][1];
+	String[][] songRepeatList = new String[5][2];
 
 	public void run() {
 		/**
@@ -116,7 +116,11 @@ public class BotAudio extends Command {
 							displayMessage(args[1] + " is not within the range [1, 5], please try again");
 						}
 						else {
-							queueYoutubeSong(loadCurrChn(), music, songRepeatList[songNum-1][0]);
+              try{
+							  queueYoutubeSong(loadCurrChn(), music, new URL(songRepeatList[songNum-1][0]));
+              } catch(Exception e){
+                displayMessage(e.getMessage());
+              }
 						}
 					} catch(ArrayIndexOutOfBoundsException e) {
 						// Just display list of last 5 songs played if no number was entered
@@ -226,7 +230,7 @@ public class BotAudio extends Command {
 	/**
 	 * Helper method to queue Youtube songs
 	 */
-	private void queueYoutubeSong(AudioChannel audio_chn, File music, String url) {
+	private void queueYoutubeSong(AudioChannel audio_chn, File music, URL url) {
 		// Get the audio from the YT video to queue
 		music = loadYoutubeMP3(url, audio_chn);
 		audio_chn.queueFile(music);
@@ -246,14 +250,10 @@ public class BotAudio extends Command {
 	 */
 	private String displayRepeatList() {
 		String songList = "";
-		try {
-			songList += "Last 5 songs played: ";
-			for (song = 0; song < 5; song++) {
-				songList += "\n"+(song+1)+". "+songRepeatList[song];
-			}
-		} catch(DiscordException e) {
-			displayMessage(e.getErrorMessage());
-		}
+		songList += "Last 5 songs played: ";
+		for (int song = 0; song < 5; song++) {
+			songList += "\n"+(song+1)+". "+songRepeatList[song];
+    }
 		return songList;
 	}
 
@@ -261,24 +261,24 @@ public class BotAudio extends Command {
 	 * Add the current queued song to the array 
      * of unique songs that can be repeated
 	 */
-	private void queueSongToRepeat(String songName, String songUrl) {
+	private void queueSongToRepeat(String songName, URL songUrl) {
 		// First check if array is full
 		boolean isFull = true;
-		for (song = 0; song < songRepeatList.length; song++) {
+		for (int song = 0; song < songRepeatList.length; song++) {
 			if (songRepeatList[song] == null) {
 				// Array is not full: check if current queued song is the same as the last queued song
 				isFull = false;
 				// If repeat list is not empty
 				if (song != 0) {
 					// If unique song (different from last): add song to list
-					if (songRepeatList[song-1][0] != songUrl) {
-						songRepeatList[song] = songName;
-						songRepeatList[song][0] = songUrl;
+					if (!songRepeatList[song-1][0].equals(songUrl.toString())) {
+						songRepeatList[song][1] = songName;
+						songRepeatList[song][0] = songUrl.toString();
 					}
 				} else {
 					// List is empty: add as first song on list
-					songRepeatList[0] = songName;
-					songRepeatList[0][0] = songUrl;
+					songRepeatList[0][1] = songName;
+					songRepeatList[0][0] = songUrl.toString();
 				}
 				break;
 			}
@@ -290,12 +290,12 @@ public class BotAudio extends Command {
 			 * removing the song played 6 songs ago, and add the newest 
 			 * unique song. Otherwise do nothing
 			 */
-			if (songUrl != songRepeatList[0][0]) {
-				for (i = 4; i > 0; i--) {
+			if (!songUrl.toString().equals(songRepeatList[0][0])) {
+				for (int i = 4; i > 0; i--) {
 					songRepeatList[i] = songRepeatList[i-1];
 				}
-				songRepeatList[0] = songName;
-				songRepeatList[0][0] = songUrl;
+				songRepeatList[0][0] = songName;
+				songRepeatList[0][0] = songUrl.toString();
 			}
 		}
 	}
