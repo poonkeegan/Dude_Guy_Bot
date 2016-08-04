@@ -33,9 +33,9 @@ public class Instance {
 		initCommands();
 		KEY = key;
 	}
-	
-	
-	
+
+
+
 	public void initCommands(){
 		/**
 		 * Adds the bot's command list into a hashmap.
@@ -55,6 +55,19 @@ public class Instance {
 	@EventSubscriber
 	public void onReady(ReadyEvent event) {
 		System.out.println("*** Discord bot armed ***");
+
+		// Set default audio playback volume of bot
+		// Attempt to get the audio channel of the current Discord
+		AudioChannel curr_chn = null;
+		try{
+			curr_chn = bot.getGuilds().get(0).getAudioChannel();
+			// Set the volume to 100 percent
+			curr_chn.setVolume((float) Math.pow(10, 2.7f/25) - 1);
+
+		}catch(DiscordException e){
+			displayMessage(e.getErrorMessage());
+		}
+
 	}
 
 	@EventSubscriber
@@ -83,10 +96,10 @@ public class Instance {
 		try{
 
 			// Gets the message from the event object NOTE: This is not the content of the message, but the object itself
-			IMessage message = event.getMessage(); 
+			IMessage message = event.getMessage();
 			// This is the content of the message rather then the object
 			String content = message.getContent();
-			
+
 			if (content.startsWith(KEY)) {
 				// Remove the key from the message
 				content = content.substring(KEY.length());
@@ -128,7 +141,7 @@ public class Instance {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static String getCmd(IMessage message){
 		/**
 		 * Returns the String command used to issue the command
@@ -143,7 +156,7 @@ public class Instance {
 		}
 		return content.substring(content.indexOf(getKey(message)) + 1, end_of_cmd);
 	}
-	
+
 	public static String getKey(IMessage message){
 		/**
 		 * Returns the key that is used to issue the command

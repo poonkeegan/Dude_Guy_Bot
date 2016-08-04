@@ -13,8 +13,8 @@ public class BotAudio extends Command {
 
 
 
-	static final float VOL_CONST = 2.7f/5000;
-	
+	static final float VOL_CONST = 2.7f/2500;
+
 	public void run() {
 		/**
 		 * Implement commands for playing audio
@@ -29,12 +29,12 @@ public class BotAudio extends Command {
 				displayMessage("No parameters passed");
 				String toDisp = "Correct usage " + Instance.getKey(message) + Instance.getCmd(message) + " \"parameters\"";
 				displayMessage(toDisp);
-			} 
-			
+			}
+
 			else {
 				// Initialize audio channel
 				AudioChannel audio_chn = loadCurrChn();
-				
+
 				if(args[0].equals("queue")){
 					URL url = processYoutubeURL(args);
 					File music = null;
@@ -57,7 +57,7 @@ public class BotAudio extends Command {
 						}
 						displayMessage(music.getName() + " queued.");
 					}
-				} 
+				}
 				// Handle pausing music
 				else if (args[0].equals("pause")){
 					// Bot must have something queued to play
@@ -68,7 +68,7 @@ public class BotAudio extends Command {
 						audio_chn.pause();
 					}
 				}
-				
+
 				else if (args[0].equals("play")){
 					if(audio_chn.getQueueSize() == 0){
 						displayMessage("There is nothing to play currently.");
@@ -77,7 +77,7 @@ public class BotAudio extends Command {
 						audio_chn.resume();
 					}
 				}
-				
+
 				else if (args[0].equals("clear")){
 					// Bot must have something queued to clear
 					if(audio_chn.getQueueSize() != 0){
@@ -87,7 +87,7 @@ public class BotAudio extends Command {
 						displayMessage("Nothing to clear");
 					}
 				}
-				
+
 				else if (args[0].equals("skip")){
 					// Bot must have something queued to play
 					if(audio_chn.getQueueSize() == 0){
@@ -98,7 +98,7 @@ public class BotAudio extends Command {
 						displayMessage("Song Skipped.");
 					}
 				}
-				
+
 				else if (args[0].equals("volume")){
 					try{
 						float volume = Float.parseFloat(args[1]);
@@ -137,7 +137,7 @@ public class BotAudio extends Command {
 			if (!bot.getConnectedVoiceChannels().contains(curr_chn)){
 				curr_chn.join();
 			}
-		} 
+		}
 		// Make sure that there is a channel to join to
 		catch (NoSuchElementException e){
 			displayMessage("You are not currently in a valid channel to perform this command");
@@ -186,7 +186,7 @@ public class BotAudio extends Command {
 		String title = input.substring(startIndex, endIndex);
 		return title;
 	}
-	
+
 	private URL processYoutubeURL(String[] args){
 		// Initialize the given url
 		URL url = null;
@@ -204,7 +204,7 @@ public class BotAudio extends Command {
 		}
 		return url;
 	}
-	
+
 	private AudioChannel loadCurrChn(){
 		AudioChannel curr_chn = null;
 		try{
