@@ -11,9 +11,8 @@ import sx.blah.discord.util.DiscordException;
 
 public class BotAudio extends Command {
 
-
-
 	static final float VOL_CONST = 2.7f/2500;
+	String[][] songRepeatList = new String[5][1];
 
 	public void run() {
 		/**
@@ -34,24 +33,16 @@ public class BotAudio extends Command {
 			else {
 				// Initialize audio channel
 				AudioChannel audio_chn = loadCurrChn();
+				File music = null;
 
-				if(args[0].equals("queue")){
+				if (args[0].equals("queue")) {
 					URL url = processYoutubeURL(args);
-					File music = null;
 					if (url != null) {
-						// Queue up the url
-						if (args[1].contains("youtube.com")){
-							// Get the youtube audio to queue
-							music = loadYoutubeMP3(url, audio_chn);
-							audio_chn.queueFile(music);
-							displayMessage(music.getName());
-							// Delete the downloaded youtube file
-							try{
-								Files.delete(music.toPath());
-							}catch (IOException x){
-								displayMessage(x.getMessage());
-							}
-						}else{
+						// Queue up the url from YT
+						if (args[1].contains("youtube.com")) {
+							queueYoutubeSong(audio_chn, music, url);
+						} else {
+							// Get the audio from the video on specified website to queue
 							displayMessage(url.toString());
 							audio_chn.queueUrl(url);
 						}
@@ -59,87 +50,104 @@ public class BotAudio extends Command {
 					}
 				}
 				// Handle pausing music
-				else if (args[0].equals("pause")){
+				else if (args[0].equals("pause")) {
 					// Bot must have something queued to play
-					if(audio_chn.getQueueSize() == 0){
+					if (audio_chn.getQueueSize() == 0){
 						displayMessage("There is nothing playing");
 					}
-					else{
+					else {
 						audio_chn.pause();
 					}
 				}
 
-				else if (args[0].equals("play")){
-					if(audio_chn.getQueueSize() == 0){
+				else if (args[0].equals("play")) {
+					if (audio_chn.getQueueSize() == 0) {
 						displayMessage("There is nothing to play currently.");
 					}
-					else{
+					else {
 						audio_chn.resume();
 					}
 				}
 
-				else if (args[0].equals("clear")){
+				else if (args[0].equals("clear")) {
 					// Bot must have something queued to clear
-					if(audio_chn.getQueueSize() != 0){
+					if (audio_chn.getQueueSize() != 0) {
 						audio_chn.clearQueue();
 						displayMessage("Queue Cleared.");
-					}else{
+					} else {
 						displayMessage("Nothing to clear");
 					}
 				}
 
-				else if (args[0].equals("skip")){
+				else if (args[0].equals("skip")) {
 					// Bot must have something queued to play
-					if(audio_chn.getQueueSize() == 0){
+					if (audio_chn.getQueueSize() == 0) {
 						displayMessage("There is nothing to skip currently.");
 					}
-					else{
+					else {
 						audio_chn.skip();
 						displayMessage("Song Skipped.");
 					}
 				}
 
-				else if (args[0].equals("volume")){
-					try{
+				else if (args[0].equals("volume")) {
+					try {
 						float volume = Float.parseFloat(args[1]);
-						if (volume < 0 || volume > 100){
+						if (volume < 0 || volume > 100) {
 							displayMessage(args[1] + " is not within the range [0, 100], please try again");
 						}
-						else{
+						else {
 							volume *= VOL_CONST;
 							volume = (float) Math.pow(10, volume) - 1;
 							audio_chn.setVolume(volume);
 							displayMessage("Volume set to " + args[1]);
 						}
-					}catch(ArrayIndexOutOfBoundsException e){
+					} catch(ArrayIndexOutOfBoundsException e) {
 						displayMessage("You did not input a number to set volume to, please try again");
-					}catch(NumberFormatException e){
+					} catch(NumberFormatException e) {
+						displayMessage(args[1] + " is not a valid number, please try again");
+					}
+				}
+				else if (args[0].equals("repeat")) {
+					displayRepeatList();
+					try {
+						int songNum = Integer.parseInt(args[1]);
+						if (songNum < 1 || songNum > 5) {
+							displayMessage(args[1] + " is not within the range [1, 5], please try again");
+						}
+						else {
+							queueYoutubeSong(loadCurrChn(), music, songRepeatList[songNum-1][0]);
+						}
+					} catch(ArrayIndexOutOfBoundsException e) {
+						// Just display list of last 5 songs played if no number was entered
+					} catch(NumberFormatException e) {
 						displayMessage(args[1] + " is not a valid number, please try again");
 					}
 				}
 			}
 
-		}else{
-			displayMessage("No permission");
+		} else {
+			// Someone without bot permissions tried to execute a command
+			displayMessage("Insufficient Permissions");
 		}
 
 	}
 
-	public void joinChannel(){
+	public void joinChannel() {
 		/**
 		 * Attempts to have the bot join the voice channel that user is in
 		 */
 		IVoiceChannel curr_chn = null;
-		try{
+		try {
 			// Get channel of sender
 			curr_chn = message.getAuthor().getVoiceChannel().get();
 			// Connect to sender's channel
-			if (!bot.getConnectedVoiceChannels().contains(curr_chn)){
+			if (!bot.getConnectedVoiceChannels().contains(curr_chn)) {
 				curr_chn.join();
 			}
 		}
 		// Make sure that there is a channel to join to
-		catch (NoSuchElementException e){
+		catch (NoSuchElementException e) {
 			displayMessage("You are not currently in a valid channel to perform this command");
 		}
 	}
@@ -152,10 +160,10 @@ public class BotAudio extends Command {
 		try {
 			// Download youtube and convert to mp3 using youtube-dl
 			String dl_dir = "youtube-dl -o " + System.getProperty("user.dir");
-      dl_dir += "/%(title)s.%(ext)s -x --audio-format mp3 " + url;
-      Process py = Runtime.getRuntime().exec(dl_dir);
+      		dl_dir += "/%(title)s.%(ext)s -x --audio-format mp3 " + url;
+      		Process py = Runtime.getRuntime().exec(dl_dir);
 			displayMessage(dl_dir);
-      displayMessage("Downloading File");
+      		displayMessage("Downloading File");
 			BufferedReader in = new BufferedReader(new InputStreamReader(py.getInputStream()));
 			String input;
 			String title = null;
@@ -166,8 +174,8 @@ public class BotAudio extends Command {
 
 			// Load the mp3 file into the bot
 			File dir = new File(System.getProperty("user.dir"));
-			for (File file : dir.listFiles()){
-				if (file.getName().endsWith(".mp3")){
+			for (File file : dir.listFiles()) {
+				if (file.getName().endsWith(".mp3")) {
 					music = file;
 				}
 			}
@@ -177,7 +185,7 @@ public class BotAudio extends Command {
 		return music;
 	}
 
-	private String processYoutubeTitle(String input){
+	private String processYoutubeTitle(String input) {
 		/**
 		 * Strips the video title out of a download log message
 		 */
@@ -187,7 +195,7 @@ public class BotAudio extends Command {
 		return title;
 	}
 
-	private URL processYoutubeURL(String[] args){
+	private URL processYoutubeURL(String[] args) {
 		// Initialize the given url
 		URL url = null;
 		try {
@@ -197,7 +205,7 @@ public class BotAudio extends Command {
 				cutoff = args[1].length();
 			}
 			url = new URL(args[1].substring(0, cutoff));
-		} catch(ArrayIndexOutOfBoundsException e){
+		} catch(ArrayIndexOutOfBoundsException e) {
 			displayMessage("No URL provided");
 		} catch (MalformedURLException e) {
 			displayMessage("Invalid URL");
@@ -205,13 +213,90 @@ public class BotAudio extends Command {
 		return url;
 	}
 
-	private AudioChannel loadCurrChn(){
+	private AudioChannel loadCurrChn() {
 		AudioChannel curr_chn = null;
-		try{
+		try {
 			curr_chn = bot.getGuilds().get(0).getAudioChannel();
-		}catch(DiscordException e){
+		} catch(DiscordException e) {
 			displayMessage(e.getErrorMessage());
 		}
 		return curr_chn;
+	}
+
+	/**
+	 * Helper method to queue Youtube songs
+	 */
+	private void queueYoutubeSong(AudioChannel audio_chn, File music, String url) {
+		// Get the audio from the YT video to queue
+		music = loadYoutubeMP3(url, audio_chn);
+		audio_chn.queueFile(music);
+		queueSongToRepeat(music.getName(), url);
+		displayMessage(music.getName());
+		// Delete the downloaded youtube file
+		try {
+			Files.delete(music.toPath());
+		} catch (IOException x) {
+			displayMessage(x.getMessage());
+		}
+	}
+
+	/**
+	 * Display the last 5 songs played by the
+     * bot for user to choose to repeat
+	 */
+	private String displayRepeatList() {
+		String songList = "";
+		try {
+			songList += "Last 5 songs played: ";
+			for (song = 0; song < 5; song++) {
+				songList += "\n"+(song+1)+". "+songRepeatList[song];
+			}
+		} catch(DiscordException e) {
+			displayMessage(e.getErrorMessage());
+		}
+		return songList;
+	}
+
+	/**
+	 * Add the current queued song to the array 
+     * of unique songs that can be repeated
+	 */
+	private void queueSongToRepeat(String songName, String songUrl) {
+		// First check if array is full
+		boolean isFull = true;
+		for (song = 0; song < songRepeatList.length; song++) {
+			if (songRepeatList[song] == null) {
+				// Array is not full: check if current queued song is the same as the last queued song
+				isFull = false;
+				// If repeat list is not empty
+				if (song != 0) {
+					// If unique song (different from last): add song to list
+					if (songRepeatList[song-1][0] != songUrl) {
+						songRepeatList[song] = songName;
+						songRepeatList[song][0] = songUrl;
+					}
+				} else {
+					// List is empty: add as first song on list
+					songRepeatList[0] = songName;
+					songRepeatList[0][0] = songUrl;
+				}
+				break;
+			}
+		}
+		// Array is full: check if unique song
+		if (isFull) {
+			/**
+			 * If unique song: shift songs on list back 1 position, thus 
+			 * removing the song played 6 songs ago, and add the newest 
+			 * unique song. Otherwise do nothing
+			 */
+			if (songUrl != songRepeatList[0][0]) {
+				for (i = 4; i > 0; i--) {
+					songRepeatList[i] = songRepeatList[i-1];
+				}
+				songRepeatList[0] = songName;
+				songRepeatList[0][0] = songUrl;
+			}
+		}
 	}
 }
