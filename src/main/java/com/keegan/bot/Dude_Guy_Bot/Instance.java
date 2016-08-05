@@ -1,7 +1,7 @@
 package com.keegan.bot.Dude_Guy_Bot;
 
 import sx.blah.discord.api.ClientBuilder;
-import sx.blah.discord.api.EventSubscriber;
+import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.impl.events.DiscordDisconnectedEvent;
 import sx.blah.discord.handle.impl.events.MessageReceivedEvent;
@@ -31,7 +31,6 @@ public class Instance {
 
 	public Instance(String token, String key) {
 		this.token = token;
-		initCommands();
 		KEY = "$";
 	}
 
@@ -51,6 +50,7 @@ public class Instance {
 	public void login() throws DiscordException {
 		client = new ClientBuilder().withToken(token).login();
 		client.getDispatcher().registerListener(this);
+		initCommands();
 	}
 
 	@EventSubscriber
