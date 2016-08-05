@@ -8,14 +8,15 @@ import java.util.NoSuchElementException;
 
 import sx.blah.discord.handle.AudioChannel;
 import sx.blah.discord.handle.obj.*;
-import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.json.generic.GameObject;
+import sx.blah.discord.util.DiscordException;
 
 
 public class BotAudio extends Command {
 
 	static final float VOL_CONST = 2.7f/2500;
 	String[][] songRepeatList = new String[5][1];
+	GameObject currentSongPlaying;
 
 	public void run() {
 		/**
@@ -25,19 +26,17 @@ public class BotAudio extends Command {
 		if (isAdmin()) {
 			// Get arguments passed
 			String[] args = getArgs();
+			File music = null;
 			// Handle no parameters
 
-			if(args.length == 0){
+			if(args.length == 0) {
 				displayMessage("No parameters passed");
 				String toDisp = "Correct usage " + Instance.getKey(message) + Instance.getCmd(message) + " \"parameters\"";
 				displayMessage(toDisp);
 			}
-
 			else {
 				// Initialize audio channel
 				AudioChannel audio_chn = loadCurrChn();
-				File music = null;
-
 				if (args[0].equals("queue")) {
 					URL url = processYoutubeURL(args);
 					if (url != null) {
@@ -60,6 +59,7 @@ public class BotAudio extends Command {
 					}
 					else {
 						audio_chn.pause();
+						currentSongPlaying = null;
 					}
 				}
 
@@ -69,6 +69,7 @@ public class BotAudio extends Command {
 					}
 					else {
 						audio_chn.resume();
+						currentSongPlaying = new GameObject(music.getName());
 					}
 				}
 
@@ -89,6 +90,7 @@ public class BotAudio extends Command {
 					}
 					else {
 						audio_chn.skip();
+						currentSongPlaying = null;
 						displayMessage("Song Skipped.");
 					}
 				}
@@ -155,7 +157,7 @@ public class BotAudio extends Command {
 		}
 	}
 
-	private File loadYoutubeMP3(URL url, AudioChannel audio_chn){
+	private File loadYoutubeMP3(URL url, AudioChannel audio_chn) {
 		/**
 		 * Queues a music file from a youtube url
 		 */
@@ -180,6 +182,7 @@ public class BotAudio extends Command {
 			for (File file : dir.listFiles()) {
 				if (file.getName().endsWith(".mp3")) {
 					music = file;
+					currentSongPlaying = new GameObject(music.getName());
 				}
 			}
 		} catch (Exception e) {
@@ -204,11 +207,11 @@ public class BotAudio extends Command {
 		try {
 			// Remove extra parameters in the url
 			int cutoff = args[1].indexOf('&');
-			if (cutoff == -1){
+			if (cutoff == -1) {
 				cutoff = args[1].length();
 			}
 			url = new URL(args[1].substring(0, cutoff));
-		} catch(ArrayIndexOutOfBoundsException e) {
+		} catch (ArrayIndexOutOfBoundsException e) {
 			displayMessage("No URL provided");
 		} catch (MalformedURLException e) {
 			displayMessage("Invalid URL");
@@ -233,7 +236,7 @@ public class BotAudio extends Command {
 		// Get the audio from the YT video to queue
 		music = loadYoutubeMP3(url, audio_chn);
 		audio_chn.queueFile(music);
-		queueSongToRepeat(music.getName(), url);
+		addSongToRepeatList(music.getName(), url);
 		displayMessage(music.getName());
 		// Delete the downloaded youtube file
 		try {
@@ -264,7 +267,7 @@ public class BotAudio extends Command {
 	 * Add the current queued song to the array 
      * of unique songs that can be repeated
 	 */
-	private void queueSongToRepeat(String songName, String songUrl) {
+	private void addSongToRepeatList(String songName, String songUrl) {
 		// Check if song is from Youtube, otherwise don't add it
 		if (songUrl.contains("youtube.com")) {
 			// Check if array is full

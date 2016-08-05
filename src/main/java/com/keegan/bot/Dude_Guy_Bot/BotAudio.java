@@ -15,8 +15,8 @@ import sx.blah.discord.util.DiscordException;
 public class BotAudio extends Command {
 
 	static final float VOL_CONST = 2.7f/2500;
-	String[][] songRepeatList = new String[5][1];
-	GameObject currentSongPlaying;
+	static String[][] songRepeatList = new String[5][1];
+	static GameObject currentSongPlaying;
 
 	public void run() {
 		/**
@@ -26,6 +26,7 @@ public class BotAudio extends Command {
 		if (isAdmin()) {
 			// Get arguments passed
 			String[] args = getArgs();
+			File music = null;
 			// Handle no parameters
 
 			if(args.length == 0) {
@@ -36,8 +37,6 @@ public class BotAudio extends Command {
 			else {
 				// Initialize audio channel
 				AudioChannel audio_chn = loadCurrChn();
-				File music = null;
-
 				if (args[0].equals("queue")) {
 					URL url = processYoutubeURL(args);
 					if (url != null) {
@@ -91,9 +90,7 @@ public class BotAudio extends Command {
 					}
 					else {
 						audio_chn.skip();
-						if !(audio_chn.getQueueSize() > 0) {
-							currentSongPlaying = null;
-						}
+						currentSongPlaying = null;
 						displayMessage("Song Skipped.");
 					}
 				}
@@ -160,7 +157,7 @@ public class BotAudio extends Command {
 		}
 	}
 
-	private File loadYoutubeMP3(URL url, AudioChannel audio_chn){
+	private File loadYoutubeMP3(URL url, AudioChannel audio_chn) {
 		/**
 		 * Queues a music file from a youtube url
 		 */
@@ -185,9 +182,9 @@ public class BotAudio extends Command {
 			for (File file : dir.listFiles()) {
 				if (file.getName().endsWith(".mp3")) {
 					music = file;
+					currentSongPlaying = new GameObject(music.getName());
 				}
 			}
-			currentSongPlaying = new GameObject(music.getName());
 		} catch (Exception e) {
 			displayMessage(e.getMessage());
 		}
@@ -210,11 +207,11 @@ public class BotAudio extends Command {
 		try {
 			// Remove extra parameters in the url
 			int cutoff = args[1].indexOf('&');
-			if (cutoff == -1){
+			if (cutoff == -1) {
 				cutoff = args[1].length();
 			}
 			url = new URL(args[1].substring(0, cutoff));
-		} catch(ArrayIndexOutOfBoundsException e) {
+		} catch (ArrayIndexOutOfBoundsException e) {
 			displayMessage("No URL provided");
 		} catch (MalformedURLException e) {
 			displayMessage("Invalid URL");
