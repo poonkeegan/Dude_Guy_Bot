@@ -29,7 +29,7 @@ public class BotAudio extends Command {
 			File music = null;
 			// Handle no parameters
 
-			if (args.length == 0) {
+			if(args.length == 0) {
 				displayMessage("No parameters passed");
 				String toDisp = "Correct usage " + Instance.getKey(message) + Instance.getCmd(message) + " \"parameters\"";
 				displayMessage(toDisp);
@@ -114,7 +114,6 @@ public class BotAudio extends Command {
 					}
 				}
 				else if (args[0].equals("repeat")) {
-					displayRepeatList();
 					try {
 						int songNum = Integer.parseInt(args[1]);
 						if (songNum < 1 || songNum > 5) {
@@ -122,8 +121,8 @@ public class BotAudio extends Command {
 						}
 						else {
               				try {
-							  queueYoutubeSong(audio_chn, music, new URL(songRepeatList[songNum-1][1]));
-							} catch (Exception e) {
+							  queueYoutubeSong(audio_chn, music, new URL(songRepeatList[songNum-1][0]));
+							} catch(Exception e) {
                 				displayMessage(e.getMessage());
               				}
 						}
@@ -239,7 +238,7 @@ public class BotAudio extends Command {
 		// Get the audio from the YT video to queue
 		music = loadYoutubeMP3(url, audio_chn);
 		audio_chn.queueFile(music);
-		addSongToRepeatList(music.getName(), url.toString();
+		addSongToRepeatList(music.getName(), url.toString());
 		displayMessage(music.getName());
 		// Delete the downloaded youtube file
 		try {
@@ -254,14 +253,9 @@ public class BotAudio extends Command {
      * bot for user to choose to repeat
 	 */
 	private String displayRepeatList() {
-		String songList = "";
-		try {
-			songList += "Last 5 songs played: ";
-			for (int song = 0; song < 5; song++) {
-				songList += "\n"+(song+1)+". "+songRepeatList[song][0];
-			}
-		} catch(DiscordException e) {
-			displayMessage(e.getErrorMessage());
+		String songList = "Last 5 songs played: ";
+		for (int song = 0; song < 5; song++) {
+			songList += "\n"+(song+1)+". "+songRepeatList[song][0];
 		}
 		return songList;
 	}
