@@ -19,7 +19,7 @@ public class BotAudio extends Command {
 		 * Implement commands for playing audio
 		 */
 		// Check for permissions
-		if (isAdmin()) {
+		if (isAdmin() || isTester()) {
 			// Get arguments passed
 			String[] args = getArgs();
 			// Handle no parameters
