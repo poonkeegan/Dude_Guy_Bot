@@ -282,7 +282,7 @@ public class BotAudio extends Command {
 					// If repeat list is not empty
 					if (song != 0) {
 						// If unique song (different from last): add song to list
-						if (!(songRepeatList[song-1][0].equals(songUrl))) {
+						if (!(songRepeatList[song-1][1].equals(songUrl))) {
 							for (int i = song; i > 0 ; i--) {
 								songRepeatList[i][0] = songRepeatList[i-1][0];
 								songRepeatList[i][1] = songRepeatList[i-1][1];
