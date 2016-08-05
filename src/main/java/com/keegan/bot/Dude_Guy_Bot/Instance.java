@@ -11,6 +11,7 @@ import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.HTTP429Exception;
 import sx.blah.discord.util.MessageBuilder;
+import sx.blah.discord.handle.AudioChannel;
 
 import java.io.File;
 import java.io.FileNotFoundException;
