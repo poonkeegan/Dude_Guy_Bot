@@ -15,8 +15,8 @@ import sx.blah.discord.util.DiscordException;
 public class BotAudio extends Command {
 
 	static final float VOL_CONST = 2.7f/2500;
-	String[][] songRepeatList = new String[5][1];
-	GameObject currentSongPlaying;
+	static String[][] songRepeatList = new String[5][1];
+	static GameObject currentSongPlaying;
 
 	public void run() {
 		/**

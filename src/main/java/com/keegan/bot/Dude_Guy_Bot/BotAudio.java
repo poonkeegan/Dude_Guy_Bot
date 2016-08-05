@@ -15,7 +15,7 @@ import sx.blah.discord.util.DiscordException;
 public class BotAudio extends Command {
 
 	static final float VOL_CONST = 2.7f/2500;
-	static String[][] songRepeatList = new String[5][1];
+	static String[][] songRepeatList = new String[5][2];
 	static GameObject currentSongPlaying;
 
 	public void run() {
@@ -121,16 +121,16 @@ public class BotAudio extends Command {
 							displayMessage(args[1] + " is not within the range [1, 5], please try again");
 						}
 						else {
-							queueYoutubeSong(loadCurrChn(), music, songRepeatList[songNum-1][0]);
+							queueYoutubeSong(loadCurrChn(), music, songRepeatList[songNum-1][1]);
 						}
-					} catch(ArrayIndexOutOfBoundsException e) {
+					} catch (ArrayIndexOutOfBoundsException e) {
 						// Just display list of last 5 songs played if no number was entered
-					} catch(NumberFormatException e) {
+						displayRepeatList();
+					} catch (NumberFormatException e) {
 						displayMessage(args[1] + " is not a valid number, please try again");
 					}
 				}
 			}
-
 		} else {
 			// Someone without bot permissions tried to execute a command
 			displayMessage("Insufficient Permissions");
@@ -255,7 +255,7 @@ public class BotAudio extends Command {
 		try {
 			songList += "Last 5 songs played: ";
 			for (song = 0; song < 5; song++) {
-				songList += "\n"+(song+1)+". "+songRepeatList[song];
+				songList += "\n"+(song+1)+". "+songRepeatList[song][0];
 			}
 		} catch(DiscordException e) {
 			displayMessage(e.getErrorMessage());
@@ -273,20 +273,24 @@ public class BotAudio extends Command {
 			// Check if array is full
 			boolean isFull = true;
 			for (song = 0; song < songRepeatList.length; song++) {
-				if (songRepeatList[song] == null) {
+				if (songRepeatList[song][1].equals(null)) {
 					// Array is not full: check if current queued song is the same as the last queued song
 					isFull = false;
 					// If repeat list is not empty
 					if (song != 0) {
 						// If unique song (different from last): add song to list
-						if (songRepeatList[song-1][0] != songUrl) {
-							songRepeatList[song] = songName;
-							songRepeatList[song][0] = songUrl;
+						if (!(songRepeatList[song-1][0].equals(songUrl))) {
+							for (i = song; i > 0 ; i--) {
+								songRepeatList[i][0] = songRepeatList[i-1][0];
+								songRepeatList[i][1] = songRepeatList[i-1][1];
+							}
+							songRepeatList[0][0] = songName;
+							songRepeatList[0][1] = songUrl;
 						}
 					} else {
 						// List is empty: add as first song on list
-						songRepeatList[0] = songName;
-						songRepeatList[0][0] = songUrl;
+						songRepeatList[0][0] = songName;
+						songRepeatList[0][1] = songUrl;
 					}
 					break;
 				}
@@ -298,12 +302,13 @@ public class BotAudio extends Command {
 				 * removing the song played 6 songs ago, and add the newest 
 				 * unique song. Otherwise do nothing
 				 */
-				if (songUrl != songRepeatList[0][0]) {
+				if (!(songUrl.equals(songRepeatList[0][0]))) {
 					for (i = 4; i > 0; i--) {
-						songRepeatList[i] = songRepeatList[i-1];
+						songRepeatList[i][0] = songRepeatList[i-1][0];
+						songRepeatList[i][1] = songRepeatList[i-1][1];
 					}
-					songRepeatList[0] = songName;
-					songRepeatList[0][0] = songUrl;
+					songRepeatList[0][0] = songName;
+					songRepeatList[0][1] = songUrl;
 				}
 			}
 		}
