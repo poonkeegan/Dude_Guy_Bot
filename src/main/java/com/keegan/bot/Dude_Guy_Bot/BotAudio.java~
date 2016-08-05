@@ -29,7 +29,7 @@ public class BotAudio extends Command {
 			File music = null;
 			// Handle no parameters
 
-			if (args.length == 0) {
+			if(args.length == 0) {
 				displayMessage("No parameters passed");
 				String toDisp = "Correct usage " + Instance.getKey(message) + Instance.getCmd(message) + " \"parameters\"";
 				displayMessage(toDisp);
@@ -122,8 +122,8 @@ public class BotAudio extends Command {
 						}
 						else {
               				try {
-							  queueYoutubeSong(audio_chn, music, new URL(songRepeatList[songNum-1][1]));
-							} catch (Exception e) {
+							  queueYoutubeSong(loadCurrChn(), music, new URL(songRepeatList[songNum-1][0]));
+							} catch(Exception e) {
                 				displayMessage(e.getMessage());
               				}
 						}
