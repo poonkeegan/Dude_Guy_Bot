@@ -121,7 +121,7 @@ public class BotAudio extends Command {
 						}
 						else {
               				try {
-							  queueYoutubeSong(audio_chn, music, new URL(songRepeatList[songNum-1][0]));
+							  queueYoutubeSong(audio_chn, music, new URL(songRepeatList[songNum-1][1]));
 							} catch(Exception e) {
                 				displayMessage(e.getMessage());
               				}
