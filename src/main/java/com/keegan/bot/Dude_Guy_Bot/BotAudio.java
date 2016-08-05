@@ -116,7 +116,7 @@ public class BotAudio extends Command {
 							displayMessage(args[1] + " is not within the range [1, 5], please try again");
 						}
 						else {
-							queueYoutubeSong(loadCurrChn(), music, songRepeatList[songNum][0]);
+							queueYoutubeSong(loadCurrChn(), music, songRepeatList[songNum-1][0]);
 						}
 					} catch(ArrayIndexOutOfBoundsException e) {
 						// Just display list of last 5 songs played if no number was entered
