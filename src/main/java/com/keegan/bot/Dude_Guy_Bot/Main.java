@@ -18,6 +18,7 @@ public class Main {
         } else {
         	System.out.println("Starting bot with token");
             bot = new Instance(args[0], args[1]);
+            System.out.println(args[0] + " " + args[1]);
         }
         try {
     		File key_file = new File("secret_key.txt");

@@ -23,7 +23,7 @@ public class BotAudio extends Command {
 		 * Implement commands for playing audio
 		 */
 		// Check for permissions
-		if (isAdmin()) {
+		if (isAdmin() || isTester()) {
 			// Get arguments passed
 			String[] args = getArgs();
 			File music = null;
@@ -121,11 +121,14 @@ public class BotAudio extends Command {
 							displayMessage(args[1] + " is not within the range [1, 5], please try again");
 						}
 						else {
-							queueYoutubeSong(loadCurrChn(), music, songRepeatList[songNum-1][1]);
+              				try {
+							  queueYoutubeSong(loadCurrChn(), music, new URL(songRepeatList[songNum-1][0]));
+							} catch(Exception e) {
+                				displayMessage(e.getMessage());
+              				}
 						}
 					} catch (ArrayIndexOutOfBoundsException e) {
-						// Just display list of last 5 songs played if no number was entered
-						displayRepeatList();
+						displayRepeatList(); // Just display list of last 5 songs played if no number was entered
 					} catch (NumberFormatException e) {
 						displayMessage(args[1] + " is not a valid number, please try again");
 					}
@@ -232,11 +235,11 @@ public class BotAudio extends Command {
 	/**
 	 * Helper method to queue Youtube songs
 	 */
-	private void queueYoutubeSong(AudioChannel audio_chn, File music, String url) {
+	private void queueYoutubeSong(AudioChannel audio_chn, File music, URL url) {
 		// Get the audio from the YT video to queue
 		music = loadYoutubeMP3(url, audio_chn);
 		audio_chn.queueFile(music);
-		addSongToRepeatList(music.getName(), url);
+		addSongToRepeatList(music.getName(), url.toString();
 		displayMessage(music.getName());
 		// Delete the downloaded youtube file
 		try {
@@ -254,7 +257,7 @@ public class BotAudio extends Command {
 		String songList = "";
 		try {
 			songList += "Last 5 songs played: ";
-			for (song = 0; song < 5; song++) {
+			for (int song = 0; song < 5; song++) {
 				songList += "\n"+(song+1)+". "+songRepeatList[song][0];
 			}
 		} catch(DiscordException e) {
@@ -272,15 +275,15 @@ public class BotAudio extends Command {
 		if (songUrl.contains("youtube.com")) {
 			// Check if array is full
 			boolean isFull = true;
-			for (song = 0; song < songRepeatList.length; song++) {
-				if (songRepeatList[song][1].equals(null)) {
+			for (int song = 0; song < songRepeatList.length; song++) {
+				if (songRepeatList[song][1] == null) {
 					// Array is not full: check if current queued song is the same as the last queued song
 					isFull = false;
 					// If repeat list is not empty
 					if (song != 0) {
 						// If unique song (different from last): add song to list
 						if (!(songRepeatList[song-1][0].equals(songUrl))) {
-							for (i = song; i > 0 ; i--) {
+							for (int i = song; i > 0 ; i--) {
 								songRepeatList[i][0] = songRepeatList[i-1][0];
 								songRepeatList[i][1] = songRepeatList[i-1][1];
 							}
@@ -303,7 +306,7 @@ public class BotAudio extends Command {
 				 * unique song. Otherwise do nothing
 				 */
 				if (!(songUrl.equals(songRepeatList[0][0]))) {
-					for (i = 4; i > 0; i--) {
+					for (int i = 4; i > 0; i--) {
 						songRepeatList[i][0] = songRepeatList[i-1][0];
 						songRepeatList[i][1] = songRepeatList[i-1][1];
 					}
