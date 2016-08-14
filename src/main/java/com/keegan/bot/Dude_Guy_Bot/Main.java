@@ -47,28 +47,29 @@ public class Main {
 			File permission_file = null;
 			for (File file : dir.listFiles()) {
 				if (file.getName().equals(perm_file)) {
-					try{
-						permission_file = file;
-					} catch (FileNotFoundException e) {
-						System.out.println("File not found");
-					}
+					permission_file = file;
 				}
 			}
 			if (permission_file != null){
-				Scanner scanner = new Scanner(permission_file);
-				// Count how many role names need to be stored
-				int lines = 0;
-				while (scanner.hasNextLine()) {
-					scanner.nextLine();
-					lines++;
-				}
-				// Reset scanner to top of file
-				scanner.close();
-				scanner = new Scanner(permission_file);
-				// Load each line into the string array
-				valid_roles = new String[lines];
-				for (int i = 0; i < lines; i++){
-					valid_roles[0] = scanner.nextLine();
+
+				try{
+					Scanner scanner = new Scanner(permission_file);
+					// Count how many role names need to be stored
+					int lines = 0;
+					while (scanner.hasNextLine()) {
+						scanner.nextLine();
+						lines++;
+					}
+					// Reset scanner to top of file
+					scanner.close();
+					scanner = new Scanner(permission_file);
+					// Load each line into the string array
+					valid_roles = new String[lines];
+					for (int i = 0; i < lines; i++){
+						valid_roles[0] = scanner.nextLine();
+					}
+				}catch (FileNotFoundException e) {
+					System.out.println("File not found");
 				}
 			}else{
 				System.out.println("There is no permission file");
