@@ -55,16 +55,16 @@ public class Main {
 				// Count how many role names need to be stored
 				int lines = 0;
 				while (scanner.hasNextLine()) {
-					sc.nextLine();
+					scanner.nextLine();
 					lines++;
 				}
 				// Reset scanner to top of file
-				sc.close();
-				sc = new Scanner(permission_file);
+				scanner.close();
+				scanner = new Scanner(permission_file);
 				// Load each line into the string array
 				valid_roles = new String[lines];
 				for (int i = 0; i < lines; i++){
-					valid_roles[0] = sc.nextLine();
+					valid_roles[0] = scanner.nextLine();
 				}
 			}else{
 				System.out.println("There is no permission file");

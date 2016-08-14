@@ -21,7 +21,7 @@ public class BotAudio extends Command {
 		 * Implement commands for playing audio
 		 */
 		// Check for permissions
-		if (hasPerms) {
+		if (hasPerms()) {
 			// Get arguments passed
 			String[] args = getArgs();
 			File music = null;
