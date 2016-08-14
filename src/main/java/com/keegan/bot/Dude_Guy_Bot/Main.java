@@ -68,6 +68,7 @@ public class Main {
 					for (int i = 0; i < lines; i++){
 						valid_roles[0] = scanner.nextLine();
 					}
+					scanner.close();
 				}catch (FileNotFoundException e) {
 					System.out.println("File not found");
 				}
