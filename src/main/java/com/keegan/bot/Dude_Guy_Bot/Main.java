@@ -47,7 +47,11 @@ public class Main {
 			File permission_file = null;
 			for (File file : dir.listFiles()) {
 				if (file.getName().equals(perm_file)) {
-					permission_file = file;
+					try{
+						permission_file = file;
+					} catch (FileNotFoundException e) {
+						System.out.println("File not found");
+					}
 				}
 			}
 			if (permission_file != null){
