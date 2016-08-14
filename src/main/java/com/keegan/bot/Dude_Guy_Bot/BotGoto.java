@@ -18,7 +18,11 @@ public class BotGoto extends Command {
 		if (arg == null){
 			if (message.getAuthor().getVoiceChannel().isPresent()){
 				IVoiceChannel voice_channel = message.getAuthor().getVoiceChannel().get();
-				voice_channel.join();
+				try{
+          voice_channel.join();
+        } catch (Exception e){
+          displayMessage(e.getMessage());
+        }
 			}else{
 				displayMessage("You aren't in a Voice Channel.");
 			}

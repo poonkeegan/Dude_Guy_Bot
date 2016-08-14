@@ -27,13 +27,14 @@ public class Instance {
 	private final AtomicBoolean reconnect = new AtomicBoolean(true);
 	private HashMap<String, Command> bot_commands;
 
-	private String KEY;
+	private String key;
+
 
 	public Instance(String token, String key) {
 		this.token = token;
-		KEY = "$";
+		this.key = key.trim();
+    System.out.println("1" + this.key + "1");
 	}
-
 
 
 	public void initCommands(){
@@ -87,13 +88,10 @@ public class Instance {
 			IMessage message = event.getMessage();
 			// This is the content of the message rather then the object
 			String content = message.getContent();
-			System.out.println(KEY);
-			System.out.println(KEY + " !");
-			System.out.println(KEY);
-			System.out.println(content.startsWith(KEY) + "" );
-			if (content.startsWith(KEY)) {
+			System.out.println(content.startsWith(key) + "" );
+			if (content.startsWith(key)) {
 				// Remove the key from the message
-				content = content.substring(KEY.length());
+				content = content.substring(key.length());
 				String command = getCmd(message);
 				// Check if valid command, run if so
 				if (bot_commands.containsKey(command)){

@@ -8,7 +8,6 @@ import java.util.NoSuchElementException;
 
 import sx.blah.discord.handle.AudioChannel;
 import sx.blah.discord.handle.obj.*;
-import sx.blah.discord.json.generic.GameObject;
 import sx.blah.discord.util.DiscordException;
 
 
@@ -16,7 +15,6 @@ public class BotAudio extends Command {
 
 	static final float VOL_CONST = 2.7f/2500;
 	static String[][] songRepeatList = new String[5][2];
-	static GameObject currentSongPlaying;
 
 	public void run() {
 		/**
@@ -59,7 +57,6 @@ public class BotAudio extends Command {
 					}
 					else {
 						audio_chn.pause();
-						currentSongPlaying = null;
 					}
 				}
 
@@ -69,7 +66,6 @@ public class BotAudio extends Command {
 					}
 					else {
 						audio_chn.resume();
-						currentSongPlaying = new GameObject(music.getName());
 					}
 				}
 
@@ -90,7 +86,6 @@ public class BotAudio extends Command {
 					}
 					else {
 						audio_chn.skip();
-						currentSongPlaying = null;
 						displayMessage("Song Skipped.");
 					}
 				}
@@ -156,7 +151,9 @@ public class BotAudio extends Command {
 		// Make sure that there is a channel to join to
 		catch (NoSuchElementException e) {
 			displayMessage("You are not currently in a valid channel to perform this command");
-		}
+		} catch (Exception e){
+      displayMessage(e.getMessage());
+    }
 	}
 
 	private File loadYoutubeMP3(URL url, AudioChannel audio_chn) {
@@ -184,7 +181,6 @@ public class BotAudio extends Command {
 			for (File file : dir.listFiles()) {
 				if (file.getName().endsWith(".mp3")) {
 					music = file;
-					currentSongPlaying = new GameObject(music.getName());
 				}
 			}
 		} catch (Exception e) {
