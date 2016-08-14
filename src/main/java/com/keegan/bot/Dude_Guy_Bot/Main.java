@@ -67,7 +67,7 @@ public class Main {
 					valid_roles[0] = sc.nextLine();
 				}
 			}else{
-				System.out.println("There is no permission file")
+				System.out.println("There is no permission file");
 			}
 		}
 
