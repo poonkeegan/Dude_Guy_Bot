@@ -24,6 +24,7 @@ public abstract class Command implements Runnable{
 		int index = 0;
 		while (!valid && index < roles.length){
 			valid = hasCmdPerms(roles[index]);
+                        System.out.println(roles[index]);
 			index++;
 		}
 		return valid;
@@ -43,6 +44,7 @@ public abstract class Command implements Runnable{
 		// Check if the person has the valid role
 		while (!has_role && role_index < roles.size()){
 			IRole role = roles.get(role_index);
+                        System.out.println(role.getName());
 			has_role = role.getName().equals(role_name);
 			role_index++;
 		}

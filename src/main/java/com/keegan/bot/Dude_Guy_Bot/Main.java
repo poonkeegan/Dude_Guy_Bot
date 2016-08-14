@@ -66,7 +66,7 @@ public class Main {
 					// Load each line into the string array
 					valid_roles = new String[lines];
 					for (int i = 0; i < lines; i++){
-						valid_roles[0] = scanner.nextLine();
+						valid_roles[i] = scanner.nextLine().trim();
 					}
 					scanner.close();
 				}catch (FileNotFoundException e) {
