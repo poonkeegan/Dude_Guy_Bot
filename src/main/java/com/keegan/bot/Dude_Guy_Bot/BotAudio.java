@@ -21,7 +21,7 @@ public class BotAudio extends Command {
 		 * Implement commands for playing audio
 		 */
 		// Check for permissions
-		if (isAdmin() || isTester()) {
+		if (hasPerms) {
 			// Get arguments passed
 			String[] args = getArgs();
 			File music = null;
@@ -256,7 +256,7 @@ public class BotAudio extends Command {
 	}
 
 	/**
-	 * Add the current queued song to the array 
+	 * Add the current queued song to the array
      * of unique songs that can be repeated
 	 */
 	private void addSongToRepeatList(String songName, String songUrl) {
@@ -290,8 +290,8 @@ public class BotAudio extends Command {
 			// Array is full: check if unique song
 			if (isFull) {
 				/**
-				 * If unique song: shift songs on list back 1 position, thus 
-				 * removing the song played 6 songs ago, and add the newest 
+				 * If unique song: shift songs on list back 1 position, thus
+				 * removing the song played 6 songs ago, and add the newest
 				 * unique song. Otherwise do nothing
 				 */
 				if (!(songUrl.equals(songRepeatList[0][0]))) {

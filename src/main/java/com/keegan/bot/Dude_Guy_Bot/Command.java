@@ -10,14 +10,25 @@ public abstract class Command implements Runnable{
 
 	IMessage message;
 	IDiscordClient bot;
-	
+
 	public void init(IMessage m, IDiscordClient b){
 		this.message = m;
 		this.bot = b;
 	}
 
 	public abstract void run();
-	
+
+	public boolean hasPerms(){
+		String[] roles = Main.perm_list();
+		boolean valid = false;
+		index = 0;
+		while (!valid || index > roles.length){
+			valid = hasCmdPerms(roles[index]);
+			index++;
+		}
+		return valid;
+	}
+
 	public boolean hasCmdPerms(String role_name){
 		/**
 		 * Check if a message sender has a certain role on a server to be able
@@ -26,7 +37,7 @@ public abstract class Command implements Runnable{
 		// Fetch the roles of the person who sent the message in the
 		// server which the message was sent
 		List<IRole> roles = message.getAuthor().getRolesForGuild(message.getGuild());
-		
+
 		boolean has_role = false;
 		int role_index = 0;
 		// Check if the person has the valid role
@@ -37,21 +48,21 @@ public abstract class Command implements Runnable{
 		}
 		return has_role;
 	}
-	
+
 	public boolean isAdmin(){
 		/**
 		 * Check if a message sender has the role Admin on the server they sent it.
 		 */
 		return hasCmdPerms("Admin");
 	}
-	
+
 	public boolean isTester() {
 		/**
 		 * Check if a message sender has the role Bot tester on the server they sent it.
 		 */
 		return hasCmdPerms("Bot tester");
 	}
-	
+
 	public void displayMessage(String content){
 		/**
 		 * Displays a messasge to the same channel that the command was passed to
@@ -65,7 +76,7 @@ public abstract class Command implements Runnable{
 			e.printStackTrace();
 		}
 	}
-	
+
 	public String[] getArgs(){
 		/**
 		 * Fetch all arguments passed in the command and splits on whitespace
@@ -80,7 +91,7 @@ public abstract class Command implements Runnable{
         }
 		return args;
 	}
-	
+
 	public String getArg(){
 		/**
 		 * Fetch all arguments passed in the command and returns
@@ -96,7 +107,7 @@ public abstract class Command implements Runnable{
         }
 		return arg;
 	}
-	
+
 	public void displayError(Exception e){
 		/**
 		 * Handles printing an error to the current channel
