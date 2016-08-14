@@ -21,7 +21,7 @@ public abstract class Command implements Runnable{
 	public boolean hasPerms(){
 		String[] roles = Main.perm_list();
 		boolean valid = false;
-		index = 0;
+		int index = 0;
 		while (!valid || index > roles.length){
 			valid = hasCmdPerms(roles[index]);
 			index++;
