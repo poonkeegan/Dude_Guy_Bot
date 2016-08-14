@@ -166,7 +166,6 @@ public class BotAudio extends Command {
 			String dl_dir = "youtube-dl -o " + System.getProperty("user.dir");
       		dl_dir += "/%(title)s.%(ext)s -x --audio-format mp3 " + url;
       		Process py = Runtime.getRuntime().exec(dl_dir);
-			displayMessage(dl_dir);
       		displayMessage("Downloading File");
 			BufferedReader in = new BufferedReader(new InputStreamReader(py.getInputStream()));
 			String input;
