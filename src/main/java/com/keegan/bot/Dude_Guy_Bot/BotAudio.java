@@ -15,7 +15,7 @@ public class BotAudio extends Command {
 
 	static final float VOL_CONST = 2.7f/2500;
 	static String[][] songRepeatList = new String[5][2];
-
+  private MusicList queuedList = new MusicList();
 	public void run() {
 		/**
 		 * Implement commands for playing audio
@@ -36,18 +36,7 @@ public class BotAudio extends Command {
 				// Initialize audio channel
 				AudioChannel audio_chn = loadCurrChn();
 				if (args[0].equals("queue")) {
-					URL url = processYoutubeURL(args);
-					if (url != null) {
-						// Queue up the url from YT
-						if (args[1].contains("youtube.com")) {
-							queueYoutubeSong(audio_chn, music, url);
-						} else {
-							// Get the audio from the video on specified website to queue
-							displayMessage(url.toString());
-							audio_chn.queueUrl(url);
-						}
-						displayMessage(music.getName() + " queued.");
-					}
+					queueAudio(args[1], audio_chn);
 				}
 				// Handle pausing music
 				else if (args[0].equals("pause")) {
@@ -115,14 +104,14 @@ public class BotAudio extends Command {
 							displayMessage(args[1] + " is not within the range [1, 5], please try again");
 						}
 						else {
-              				try {
-							  queueYoutubeSong(audio_chn, music, new URL(songRepeatList[songNum-1][1]));
-							} catch(Exception e) {
-                				displayMessage(e.getMessage());
-              				}
+							try {
+								queueYoutubeSong(audio_chn, music, new URL(songRepeatList[songNum-1][1];
+              } catch(Exception e) {
+                displayMessage(e.getMessage());
+              }
 						}
 					} catch (ArrayIndexOutOfBoundsException e) {
-						displayMessage(displayRepeatList()); // Just display list of last 5 songs played if no number was entered
+						displayMessage(queuedList.toString()); // Just display list of last 5 songs played if no number was entered
 					} catch (NumberFormatException e) {
 						displayMessage(args[1] + " is not a valid number, please try again");
 					}
@@ -154,6 +143,33 @@ public class BotAudio extends Command {
 		} catch (Exception e){
       displayMessage(e.getMessage());
     }
+	}
+
+	private void queueAudio(String music_url, AudioChannel audio_chn){
+		/**
+		* Given a URL to a music file or a youtube link, queues music
+		*/
+		// Check if it's a youtube link to process
+		// Compressed youtube should always work
+		Url url;
+		if (music_url.contains("youtu.be")){
+			try {
+				url = new URL(youtube_link.substring(0, cutoff));
+			} catch (MalformedURLException e) {
+				displayMessage("Invalid URL");
+			}
+			queueYoutubeSong(audio_chn, url);
+		}else if(music_url.contains("www.youtube.com/watch?v=")){
+			// Otherwise, process it then queue it
+			url = processYoutubeURL(music_url);
+			queueYoutubeSong(audio_chn, url);
+		}else {
+			// Queue music files
+			url = processURL(music_url);
+			audio_chn.queueUrl(url);
+			addSongToMusicList(music_url);
+		}
+		displayMessage(queuedList.getName() + " queued.");
 	}
 
 	private File loadYoutubeMP3(URL url, AudioChannel audio_chn) {
@@ -188,29 +204,24 @@ public class BotAudio extends Command {
 		return music;
 	}
 
-	private String processYoutubeTitle(String input) {
-		/**
-		 * Strips the video title out of a download log message
-		 */
-		int startIndex = "[download] Destination: ".length();
-		int endIndex = input.lastIndexOf('.');
-		String title = input.substring(startIndex, endIndex);
-		return title;
-	}
-
-	private URL processYoutubeURL(String[] args) {
+	private URL processYoutubeURL(String youtube_link) {
 		// Initialize the given url
 		URL url = null;
-		try {
+
 			// Remove extra parameters in the url
-			int cutoff = args[1].indexOf('&');
+			int cutoff = youtube_link.indexOf('&');
 			if (cutoff == -1) {
-				cutoff = args[1].length();
+				cutoff = youtube_link.length();
 			}
-			url = new URL(args[1].substring(0, cutoff));
-		} catch (ArrayIndexOutOfBoundsException e) {
-			displayMessage("No URL provided");
-		} catch (MalformedURLException e) {
+			url = processURL(youtube_link.substring(0, cutoff));
+		return url;
+	}
+
+	private URL processURL(String link){
+		URL url;
+		try {
+			url = new URL(link);
+	  } catch (MalformedURLException e) {
 			displayMessage("Invalid URL");
 		}
 		return url;
@@ -229,12 +240,11 @@ public class BotAudio extends Command {
 	/**
 	 * Helper method to queue Youtube songs
 	 */
-	private void queueYoutubeSong(AudioChannel audio_chn, File music, URL url) {
+	private void queueYoutubeSong(AudioChannel audio_chn, URL url) {
 		// Get the audio from the YT video to queue
-		music = loadYoutubeMP3(url, audio_chn);
+		File music = loadYoutubeMP3(url, audio_chn);
 		audio_chn.queueFile(music);
-		addSongToRepeatList(music.getName(), url.toString());
-		displayMessage(music.getName());
+		addSongToMusicList(music.getName(), url.toString());
 		// Delete the downloaded youtube file
 		try {
 			Files.delete(music.toPath());
@@ -243,6 +253,17 @@ public class BotAudio extends Command {
 		}
 	}
 
+	private void displayMusicList(){
+		displayMessage(queuedList.toString());
+	}
+
+	private void addSongToMusicList(String song_title, String song_loc){
+		queuedList.push(song_title, song_loc);
+	}
+
+	private void addSongToMusicList(String song_loc){
+		queuedList.push(null , song_loc);
+	}
 	/**
 	 * Display the last 5 songs played by the
      * bot for user to choose to repeat
@@ -254,6 +275,7 @@ public class BotAudio extends Command {
 		}
 		return songList;
 	}
+
 
 	/**
 	 * Add the current queued song to the array
