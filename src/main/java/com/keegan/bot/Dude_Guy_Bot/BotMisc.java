@@ -114,7 +114,7 @@ public class BotMisc extends Command {
 				}
 				// Get the mentioned user's icon URL
 				else {
-					bot.getGuilds().get(0).getUsersByName(mentionList.get(0).getName(), true).get(0).getAvatarURL();
+					displayMessage(mentionList.get(0).mention(true) + "'s profile picture: " + bot.getGuilds().get(0).getUsersByName(mentionList.get(0).getName(), true).get(0).getAvatarURL());
 				}
 			}
 			else {

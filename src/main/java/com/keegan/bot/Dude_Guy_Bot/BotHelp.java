@@ -44,17 +44,17 @@ public class BotHelp extends Command {
 			else if (args[0].equals("bully")) {
 				displayMessage(new BotMisc("bully").getHelp());
 			}
-			else if (args[0].equals("deck")) {
-				displayMessage(new BotGamble("deck").getHelp());
-			}
 			else if (args[0].equals("exit")) {
-				displayMessage(new BotExit().getHelp());
+				displayMessage(new BotGoto("exit").getHelp());
 			}
 			else if (args[0].equals("goto")) {
-				displayMessage(new BotGoto().getHelp());
+				displayMessage(new BotGoto("goto").getHelp());
 			}
 			else if (args[0].equals("help")) {
 				displayMessage(new BotHelp().getHelp());
+			}
+			else if (args[0].equals("icon")) {
+				displayMessage(new BotMisc("icon").getHelp());
 			}
 			else if (args[0].equals("kc")) {
 				displayMessage(new BotKanColle().getHelp());
@@ -67,9 +67,6 @@ public class BotHelp extends Command {
 			}
 			else if (args[0].equals("roll")) {
 				displayMessage(new BotGamble("roll").getHelp());
-			}
-			else if (args[0].equals("rps")) {
-				displayMessage(new BotGamble("rps").getHelp());
 			}
 			else if (args[0].equals("toss")) {
 				displayMessage(new BotGamble("toss").getHelp());

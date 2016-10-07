@@ -76,27 +76,6 @@ public class BotGamble extends Command {
 			}
 		}
 
-		// Draw a card from a deck of 52 cards
-		else if (command.equals("deck")) {
-			displayMessage("soon™");
-		}
-
-		// Rock paper scissors
-		else if (command.equals("rps")) {
-			// No parameters passed
-			if (args.length < 1) {
-				displayMessage("You didn't mention someone to play rock-paper-scissors against!");
-			}
-			// Mentioned invalid person
-			else if (mentionList.isEmpty() && args.length > 0) {
-
-			}
-			// Play rps against mentioned user
-			else {
-				displayMessage("soon™");
-			}
-		}
-
 		// Toss a coin for a heads or tails result
 		else if (command.equals("toss")) {
 			displayMessage(author.mention(true) + " tossed a " + coinToss());
@@ -120,14 +99,6 @@ public class BotGamble extends Command {
 			rolls[roll] = rollDice(numDiceFaces);
 		}
 		return rolls;
-	}
-
-	/**
-	 * Randomly generate "rock", "paper", or "scissors"
-	 */
-	private String rps() {
-		//getOrCreatePMChannel();
-		return "";
 	}
 
 	/**
@@ -156,15 +127,6 @@ public class BotGamble extends Command {
 			helpMessage += "'*no_parameters*'\nRoll a 6-sided die\n\n";
 			helpMessage += "'*num_die_faces*'\nRoll a custom multi-sided die with the specified # of faces (Must be >= 6)\n\n";
 			helpMessage += "'*num_die_faces num_times*'\nRoll a multi-sided die with the specified # of faces (Must be >= 6) the specified number of times";
-		}
-		else if (command.equals("deck")) {
-			helpMessage += "List of parameters for the 'deck' command:\n\n";
-			helpMessage += "'draw'\nDraw a card from the top of the deck, return its string representation, and put it at the bottom\n\n";
-			helpMessage += "'shuffle'\nShuffle the deck";
-		}
-		else if (command.equals("rps")) {
-			helpMessage += "List of parameters for the 'rps' command:\n\n";
-			helpMessage += "'*@mention*' Plays rock-paper-scissors once against the mentioned user Reply to the bot's message with your choice of \"rock\", \"paper\", \"scissors\" (not case-sensitive) and the bot will output the result after having received both players' choices.";
 		}
 		else if (command.equals("toss")) {
 			helpMessage += "List of parameters for the 'toss' command:\n\n";

@@ -11,7 +11,6 @@ import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.Status;
-import sx.blah.discord.util.audio.AudioPlayer;
 import sx.blah.discord.util.audio.events.*;
 import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.MessageBuilder;
@@ -20,6 +19,7 @@ import sx.blah.discord.util.RateLimitException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.HashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -32,9 +32,10 @@ public class Instance {
 	private final AtomicBoolean reconnect = new AtomicBoolean(true);
 	private HashMap<String, Command> bot_commands;
 	private static IGuild guild;
-	private static AudioPlayer audioPlayer;
-	private static final float VOL_CONST = 2.7f/2500;
-	private static int initialVolume = 25;
+	private static MusicPlayer audioPlayer;
+	private static float initialVolume = 0.25f;
+	private static File currSong = null;
+	private static File prevSong = null;
 
 	private String KEY;
 
@@ -43,7 +44,6 @@ public class Instance {
 		KEY = key;
 	}
 
-
 	public void initCommands(){
 		/**
 		 * Adds the bot's command list into a hashmap.
@@ -51,16 +51,14 @@ public class Instance {
 		bot_commands = new HashMap<String, Command>();
 		bot_commands.put("audio", new BotAudio(audioPlayer));
 		bot_commands.put("bully", new BotMisc("bully"));
-		bot_commands.put("deck", new BotGamble("deck"));
-		bot_commands.put("exit", new BotExit());
-		bot_commands.put("goto", new BotGoto());
+		bot_commands.put("exit", new BotGoto("exit"));
+		bot_commands.put("goto", new BotGoto("goto"));
 		bot_commands.put("help", new BotHelp());
 		bot_commands.put("icon", new BotMisc("icon"));
 		bot_commands.put("kc", new BotKanColle());
 		bot_commands.put("league", new BotLeague());
 		bot_commands.put("praise", new BotMisc("praise"));
 		bot_commands.put("roll", new BotGamble("roll"));
-		bot_commands.put("rps", new BotGamble("rps"));
 		bot_commands.put("toss", new BotGamble("toss"));
   	}
 
@@ -72,10 +70,8 @@ public class Instance {
 	@EventSubscriber
 	public void onReady(ReadyEvent event) {
 		guild = client.getGuilds().get(0);
-		audioPlayer = new AudioPlayer(guild.getAudioManager());
-		// Set the volume to ~25%, so no ears will be hurt when the bot first loads
-		audioPlayer.setVolume((float) Math.pow(10, initialVolume * VOL_CONST) - 1);
-		System.out.println("AudioPlayer Volume: " + audioPlayer.getVolume());
+		audioPlayer = new MusicPlayer(guild);
+		audioPlayer.setVolume(initialVolume); // Set the volume to 25% to protect ears
 		initCommands();
 		System.out.println("*** Discord bot armed ***");
 	}
@@ -182,20 +178,20 @@ public class Instance {
 
 
 	/**
-	 * 
+	 * Clear "Playing" status or set status to the currently-playing song name
 	 */
 	@EventSubscriber
 	public void audioPlayerPaused(PauseStateChangeEvent event) {
-		System.out.println("Pause toggled");
 		// AudioPlayer paused
 		if (audioPlayer.isPaused()) {
 			client.changeStatus(Status.empty());
+			System.out.println("Paused");
 		}
 		// AudioPlayer unpaused
 		else {
 			try {
-			BotAudio audioCommand = new BotAudio(audioPlayer);
-			client.changeStatus(Status.game(audioCommand.getSongName()));
+				client.changeStatus(Status.game(currSong.getName().substring(0, currSong.getName().indexOf('-'))));
+				System.out.println("Unpaused");
 			} catch (Exception e) {
 				System.out.println("An error occurred: " + e.getMessage());
 			}
@@ -203,20 +199,41 @@ public class Instance {
 	}
 
 	/**
-	 * Clear "Playing" status
+	 * Clear "Playing" status upon finishing playback of a song
 	 */
 	@EventSubscriber
 	public void audioFinishedPlaying(TrackFinishEvent event) {
-		System.out.println("Track finished playing");
+		// Delete the file of the song that finished playing before the song that just stopped playing
+		try {
+			if (prevSong != null && audioPlayer.getPlaylistSize() > 1 && prevSong != currSong) {
+				Files.delete(prevSong.toPath());
+			}
+			prevSong = currSong;
+			currSong = null;
+			System.out.println("Finished playing: " + prevSong.getName());
+		} catch (Exception x) {
+			System.out.println("Error deleting file: " + x.getMessage());
+		}
 		client.changeStatus(Status.empty());
 	}
 
 	/**
-	 * Clear "Playing" status
+	 * Clear "Playing" status upon skipping a track
 	 */
 	@EventSubscriber
 	public void audioSkipped(TrackSkipEvent event) {
 		System.out.println("Track skipped");
+		client.changeStatus(Status.empty());
+		prevSong = currSong;
+		currSong = null;
+	}
+
+	/**
+	 * Clear "Playing" status upon clearing the playlist
+	 */
+	@EventSubscriber
+	public void audioSkipped(PlaylistClearedEvent event) {
+		System.out.println("Playlist Cleared");
 		client.changeStatus(Status.empty());
 	}
 
@@ -225,10 +242,13 @@ public class Instance {
 	 */
 	@EventSubscriber
 	public void audioStartedPlaying(TrackStartEvent event) {
-		System.out.println("Track started playing");
 		try {
 			BotAudio audioCommand = new BotAudio(audioPlayer);
-			client.changeStatus(Status.game(audioCommand.getSongName()));
+			currSong = audioCommand.getCurrSong();
+			audioCommand = null;
+			System.out.println(currSong.getName().substring(0, currSong.getName().indexOf('-')));
+			client.changeStatus(Status.game(currSong.getName().substring(0, currSong.getName().indexOf('-'))));
+			System.out.println("Started playing: " + currSong.getName().substring(0, currSong.getName().indexOf('-')));
 		} catch (Exception e) {
 			System.out.println("An error occurred: " + e.getMessage());
 		}
