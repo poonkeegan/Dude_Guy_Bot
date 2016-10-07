@@ -15,7 +15,9 @@
 #10.06.2016
 * Updated Discord4J version from 2.5.2 to 2.6.1
 * Updated audio system from sx.blah.discord.handle.AudioChannel (Removed/Depreciated) to sx.blah.discord.util.audio.AudioPlayer
+* Added support for queuing Niconico videos
 * Bot will display a game **"Playing:"** status that displays the name of the current song that is playing
+* The song file that was played 2 songs before the current song will get deleted once the current song finishes playing
 
 Added *kc* command
 * Type "kc kanmusu *shipgirl_name*" to bring up stats of the shipgirl
