@@ -10,6 +10,7 @@ import sx.blah.discord.util.DiscordException;
 public class Main {
 	private static String[] valid_roles;
 	private static HashMap<String, String> api_keys;
+
     public static void main(String[] args) {
     	api_keys = new HashMap<String, String>();
         Instance bot;
@@ -25,13 +26,13 @@ public class Main {
         }
         try {
     		File key_file = new File("secret_key.txt");
-    		try{
+    		try {
     			Scanner sc = new Scanner(key_file);
     			while (sc.hasNextLine()) {
     				assignKeys(sc.nextLine());
     			}
     			sc.close();
-    		}catch(FileNotFoundException e){
+    		} catch(FileNotFoundException e) {
     			System.out.println("No api keys found.");
     		}
             bot.login();
@@ -113,6 +114,5 @@ public class Main {
 		}
 		return readable_time;
 	}
-
-
+	
 }
